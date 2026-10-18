@@ -38,3 +38,8 @@ Then reload the unpacked extension in the browser.
 ## Permissions
 
 PageCraft uses local storage for saved CSS, the active-tab permission to identify the website open in its popup, and access to websites so its content script can apply saved styles. It only reads and writes the CSS that you enter.
+
+## Project information
+
+- See [CHANGELOG.md](CHANGELOG.md) for release notes.
+- PageCraft is distributed under the MIT License; see [LICENCE](LICENCE).

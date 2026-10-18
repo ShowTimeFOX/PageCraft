@@ -18,6 +18,8 @@ PageCraft is a cross-browser extension for creating custom CSS styles on website
 - `content.js` loads the saved style for the current hostname and updates it when local styles change.
 - `popup.html`, `popup.css`, and `popup.js` implement the CSS editor and save flow.
 - `README.md` documents installation and basic usage in Chrome and Firefox.
+- `CHANGELOG.md` records notable releases and changes.
+- `LICENCE` contains the project's MIT License.
 
 ## Compatibility and permissions
 
