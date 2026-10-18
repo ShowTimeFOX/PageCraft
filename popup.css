@@ -1,0 +1,53 @@
+:root {
+  color-scheme: light dark;
+  font: 14px/1.45 system-ui, sans-serif;
+}
+
+body {
+  box-sizing: border-box;
+  margin: 0;
+  min-width: 340px;
+  padding: 16px;
+}
+
+main {
+  display: grid;
+  gap: 10px;
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 18px;
+}
+
+header p,
+#status {
+  color: GrayText;
+  overflow-wrap: anywhere;
+}
+
+label {
+  font-weight: 600;
+}
+
+textarea {
+  box-sizing: border-box;
+  min-height: 190px;
+  padding: 10px;
+  resize: vertical;
+  width: 100%;
+  font: 12px/1.5 ui-monospace, monospace;
+}
+
+button {
+  cursor: pointer;
+  padding: 9px 12px;
+}
+
+#status {
+  min-height: 1.45em;
+}
