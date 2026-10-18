@@ -8,25 +8,37 @@
   </head>
   <body>
     <main>
-      <header>
-        <h1>CustomStyle</h1>
-        <p id="site-name">Loading current site…</p>
+      <header class="toolbar">
+        <div class="title">
+          <h1>CustomStyle</h1>
+          <p id="site-name">Loading current site…</p>
+        </div>
+        <div class="actions">
+          <button id="save-button" type="button" title="Save and apply (Ctrl+S)">Save <kbd>Ctrl+S</kbd></button>
+          <button id="new-style-button" type="button" title="Start a new style (Ctrl+N)">New <kbd>Ctrl+N</kbd></button>
+          <button id="delete-button" type="button" class="secondary" title="Delete this style" hidden>Delete</button>
+        </div>
       </header>
 
-      <label for="style-name">Style name</label>
-      <input id="style-name" type="text" maxlength="60" placeholder="My custom style">
-
-      <label for="css-editor">CSS</label>
-      <textarea id="css-editor" spellcheck="false" placeholder="body {
-  font-family: system-ui, sans-serif;
-}"></textarea>
-
-      <div class="actions">
-        <button id="save-button" type="button">Save and apply</button>
-        <button id="new-style-button" type="button" class="secondary">New style</button>
-        <button id="delete-button" type="button" class="secondary" hidden>Delete style</button>
+      <div class="style-details">
+        <label for="style-name">Style name</label>
+        <input id="style-name" type="text" maxlength="60" placeholder="My custom style">
       </div>
-      <p id="status" role="status" aria-live="polite"></p>
+
+      <section class="editor-panel" aria-label="CSS editor">
+        <div id="line-numbers" class="line-numbers" aria-hidden="true"></div>
+        <div class="code-viewport">
+          <pre id="highlight-layer" aria-hidden="true"><code id="highlighted-code"></code></pre>
+          <textarea id="css-editor" aria-label="CSS source code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" placeholder="/* Write custom CSS here */"></textarea>
+          <div id="completion-list" class="completion-list" role="listbox" aria-label="CSS suggestions" hidden></div>
+          <input id="color-picker" class="inline-color-picker" type="color" aria-label="Choose color" title="Choose color" hidden>
+        </div>
+      </section>
+
+      <footer>
+        <p id="status" role="status" aria-live="polite"></p>
+        <p class="shortcuts">Tab: indent · ↑/↓ + Enter: complete · Ctrl+S: save · Ctrl+N: new style</p>
+      </footer>
     </main>
     <script src="editor.js"></script>
   </body>

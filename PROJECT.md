@@ -8,7 +8,7 @@ PageCraft is a cross-browser extension for creating custom CSS styles on website
 
 - Provide an extension popup with a global enable toggle and dark/light CSS presets.
 - Save reusable named custom styles locally and select them per HTTP or HTTPS hostname.
-- Provide a separate CustomStyle editor for creating, editing, and deleting styles.
+- Provide a full-window CustomStyle editor with syntax highlighting, active-line highlighting, line numbers, bracket pairing, CSS property/value suggestions, inline color picking, keyboard shortcuts, and style management.
 - Automatically apply global presets and selected site styles when pages load.
 - Keep the manifest generator (`manifest.js`) and the browser-loadable manifest (`manifest.json`) in sync.
 - Avoid network requests and keep saved styles in browser-local storage.

@@ -7,6 +7,9 @@ PageCraft is a lightweight browser extension for writing and saving custom CSS f
 - Turn PageCraft on or off and choose a global dark or light mode preset.
 - Select reusable named custom styles per website from the popup.
 - Create and edit named styles in the CustomStyle editor.
+- Edit in a full-window CSS workspace with syntax highlighting, active-line highlighting, and line numbers.
+- Use `Ctrl+S` / `Cmd+S` to save, `Ctrl+N` / `Cmd+N` for a new style, and `Tab` / `Shift+Tab` to indent or outdent.
+- Automatically close and pair brackets and quotes; get CSS property/value suggestions and an inline color picker beside color values.
 - Styles and settings are saved in browser-local storage and automatically reapplied.
 - CSS is stored locally in the browser; PageCraft does not send it anywhere.
 
