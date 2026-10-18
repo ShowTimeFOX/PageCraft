@@ -6,11 +6,15 @@ const manifest = {
   name: "PageCraft",
   version: "1.0.0",
   description: "Create custom CSS styles for the websites you visit.",
+  icons: {
+    128: "icon.png",
+  },
   permissions: ["storage", "activeTab"],
   host_permissions: ["<all_urls>"],
   action: {
     default_title: "Style this page with PageCraft",
     default_popup: "popup.html",
+    default_icon: "icon.png",
   },
   content_scripts: [
     {

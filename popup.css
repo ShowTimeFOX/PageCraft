@@ -1,18 +1,26 @@
 :root {
   color-scheme: light dark;
-  font: 14px/1.45 system-ui, sans-serif;
+  font: 14px/1.4 system-ui, sans-serif;
 }
 
 body {
   box-sizing: border-box;
   margin: 0;
-  min-width: 340px;
+  min-width: 320px;
+  overflow: hidden;
   padding: 16px;
 }
 
 main {
   display: grid;
   gap: 10px;
+}
+
+header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 h1,
@@ -24,30 +32,39 @@ h1 {
   font-size: 18px;
 }
 
-header p,
+#site-name,
 #status {
   color: GrayText;
+  font-size: 12px;
   overflow-wrap: anywhere;
 }
 
 label {
   font-weight: 600;
+  margin-bottom: -6px;
 }
 
-textarea {
+select,
+button {
   box-sizing: border-box;
-  min-height: 190px;
-  padding: 10px;
-  resize: vertical;
+  font: inherit;
+  min-height: 36px;
+  padding: 7px 10px;
   width: 100%;
-  font: 12px/1.5 ui-monospace, monospace;
 }
 
 button {
   cursor: pointer;
-  padding: 9px 12px;
+}
+
+#toggle-button {
+  width: auto;
+}
+
+#toggle-button[aria-pressed="true"] {
+  border-color: #31835a;
 }
 
 #status {
-  min-height: 1.45em;
+  min-height: 1.4em;
 }

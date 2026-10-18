@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CustomStyle - PageCraft</title>
+    <link rel="stylesheet" href="editor.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>CustomStyle</h1>
+        <p id="site-name">Loading current site…</p>
+      </header>
+
+      <label for="style-name">Style name</label>
+      <input id="style-name" type="text" maxlength="60" placeholder="My custom style">
+
+      <label for="css-editor">CSS</label>
+      <textarea id="css-editor" spellcheck="false" placeholder="body {
+  font-family: system-ui, sans-serif;
+}"></textarea>
+
+      <div class="actions">
+        <button id="save-button" type="button">Save and apply</button>
+        <button id="new-style-button" type="button" class="secondary">New style</button>
+        <button id="delete-button" type="button" class="secondary" hidden>Delete style</button>
+      </div>
+      <p id="status" role="status" aria-live="polite"></p>
+    </main>
+    <script src="editor.js"></script>
+  </body>
+</html>

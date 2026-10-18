@@ -9,14 +9,26 @@
   <body>
     <main>
       <header>
-        <h1>PageCraft</h1>
-        <p id="site-name">Loading current site…</p>
+        <div>
+          <h1>PageCraft</h1>
+          <p id="site-name">Loading current site…</p>
+        </div>
+        <button id="toggle-button" type="button" aria-pressed="true">Loading…</button>
       </header>
-      <label for="css-editor">Custom CSS</label>
-      <textarea id="css-editor" spellcheck="false" placeholder="body {
-  font-family: system-ui, sans-serif;
-}"></textarea>
-      <button id="save-button" type="button">Save and apply</button>
+
+      <label for="preset-select">Global preset</label>
+      <select id="preset-select">
+        <option value="none">No preset</option>
+        <option value="dark">Dark mode</option>
+        <option value="light">Light mode</option>
+      </select>
+
+      <label for="my-styles-select">MyStyles for this site</label>
+      <select id="my-styles-select" disabled>
+        <option value="">No custom style</option>
+      </select>
+
+      <button id="custom-style-button" type="button">CustomStyle editor</button>
       <p id="status" role="status" aria-live="polite"></p>
     </main>
     <script src="popup.js"></script>

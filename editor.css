@@ -1,0 +1,65 @@
+:root {
+  color-scheme: light dark;
+  font: 14px/1.5 system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+}
+
+main {
+  display: grid;
+  gap: 12px;
+  margin: 0 auto;
+  max-width: 760px;
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 22px;
+}
+
+header p,
+#status {
+  color: GrayText;
+  overflow-wrap: anywhere;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: -8px;
+}
+
+input,
+textarea,
+button {
+  box-sizing: border-box;
+  font: inherit;
+  padding: 10px 12px;
+}
+
+textarea {
+  min-height: 55vh;
+  resize: vertical;
+  width: 100%;
+  font: 13px/1.5 ui-monospace, monospace;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+button {
+  cursor: pointer;
+}
+
+.secondary {
+  margin-left: auto;
+}

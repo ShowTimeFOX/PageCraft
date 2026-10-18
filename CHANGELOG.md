@@ -7,6 +7,6 @@ Notable changes to PageCraft are documented here.
 ### Added
 
 - Initial Chrome and Firefox extension using Manifest V3.
-- Popup editor for writing and saving custom CSS for the current hostname.
+- Compact popup controls for enabling PageCraft and selecting global dark/light presets.
+- Named custom style editor with per-host style selection.
 - Local storage and automatic style application when a site loads.
-- Ability to remove a site's custom style by saving an empty editor.
