@@ -44,7 +44,7 @@ body {
 
 main {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
   height: 100vh;
   height: 100dvh;
   min-height: 0;
@@ -119,6 +119,31 @@ kbd {
   display: flex;
   gap: 12px;
   padding: 8px 16px;
+}
+
+.prompt-panel {
+  border-bottom: 1px solid var(--editor-border);
+  display: grid;
+  gap: 5px;
+  padding: 8px 16px;
+}
+
+#comfy-prompt {
+  background: transparent;
+  border: 1px solid var(--editor-border);
+  border-radius: 5px;
+  color: inherit;
+  font: 13px/1.4 system-ui, sans-serif;
+  min-height: 46px;
+  padding: 7px 10px;
+  resize: vertical;
+  width: 100%;
+}
+
+#generation-process {
+  color: var(--editor-muted);
+  font-size: 11px;
+  min-height: 1.4em;
 }
 
 label {

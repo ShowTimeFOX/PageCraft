@@ -10,6 +10,7 @@ PageCraft is a lightweight browser extension for writing and saving custom CSS f
 - Edit in a full-window CSS workspace with syntax highlighting, active-line highlighting, and line numbers.
 - Use `Ctrl+S` / `Cmd+S` to save, `Ctrl+N` / `Cmd+N` for a new style, and `Tab` / `Shift+Tab` to indent or outdent.
 - Automatically close and pair brackets and quotes; get CSS property/value suggestions and an inline color picker beside color values.
+- Describe a desired style in the ComfyUI prompt field. CSS generation is not active until a ComfyUI text/LLM workflow that returns CSS is configured; PageCraft clearly reports this instead of presenting fabricated output.
 - Styles and settings are saved in browser-local storage and automatically reapplied.
 - CSS is stored locally in the browser; PageCraft does not send it anywhere.
 

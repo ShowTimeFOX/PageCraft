@@ -14,6 +14,7 @@
           <p id="site-name">Loading current site…</p>
         </div>
         <div class="actions">
+          <button id="generate-button" type="button" title="Generate CSS with a configured ComfyUI workflow">Generate CSS</button>
           <button id="save-button" type="button" title="Save and apply (Ctrl+S)">Save <kbd>Ctrl+S</kbd></button>
           <button id="new-style-button" type="button" title="Start a new style (Ctrl+N)">New <kbd>Ctrl+N</kbd></button>
           <button id="delete-button" type="button" class="secondary" title="Delete this style" hidden>Delete</button>
@@ -24,6 +25,14 @@
         <label for="style-name">Style name</label>
         <input id="style-name" type="text" maxlength="60" placeholder="My custom style">
       </div>
+
+      <section class="prompt-panel" aria-label="ComfyUI CSS prompt">
+        <label for="comfy-prompt">Describe the style you want ComfyUI to create</label>
+        <textarea id="comfy-prompt" rows="2" placeholder="Example: Use a warm neutral palette, softer borders, and clearer heading hierarchy."></textarea>
+        <p id="generation-process" role="status" aria-live="polite">
+          ComfyUI generation needs a workflow with a text/LLM node that returns CSS. No workflow is configured, so PageCraft will not fabricate generated styles.
+        </p>
+      </section>
 
       <section class="editor-panel" aria-label="CSS editor">
         <div id="line-numbers" class="line-numbers" aria-hidden="true"></div>

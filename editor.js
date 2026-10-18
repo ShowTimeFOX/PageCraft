@@ -9,6 +9,9 @@ const colorPicker = document.getElementById("color-picker");
 const saveButton = document.getElementById("save-button");
 const newStyleButton = document.getElementById("new-style-button");
 const deleteButton = document.getElementById("delete-button");
+const generateButton = document.getElementById("generate-button");
+const comfyPrompt = document.getElementById("comfy-prompt");
+const generationProcess = document.getElementById("generation-process");
 const status = document.getElementById("status");
 
 const params = new URLSearchParams(window.location.search);
@@ -65,6 +68,13 @@ const commonValues = [
 ];
 function setStatus(message) {
   status.textContent = message;
+}
+
+function explainComfyUiRequirement() {
+  const prompt = comfyPrompt.value.trim();
+  generationProcess.textContent = prompt
+    ? "Not generated: no ComfyUI prompt-to-CSS workflow is configured. Install or provide a workflow with a text/LLM node that outputs CSS, then connect that workflow before generating."
+    : "Enter a style description first. Generation still requires a ComfyUI workflow with a text/LLM node that outputs CSS.";
 }
 
 function validHostname(value) {
@@ -322,6 +332,8 @@ async function loadStyle() {
     saveButton.disabled = true;
     newStyleButton.disabled = true;
     deleteButton.disabled = true;
+    generateButton.disabled = true;
+    comfyPrompt.disabled = true;
     editor.disabled = true;
     nameInput.disabled = true;
     setStatus("Open CustomStyle from a website's PageCraft popup.");
@@ -511,6 +523,10 @@ function handleEditorKeydown(event) {
 saveButton.addEventListener("click", saveStyle);
 newStyleButton.addEventListener("click", startNewStyle);
 deleteButton.addEventListener("click", removeStyle);
+generateButton.addEventListener("click", explainComfyUiRequirement);
+comfyPrompt.addEventListener("input", () => {
+  generationProcess.textContent = "Prompt ready. CSS generation is unavailable until a ComfyUI text/LLM workflow that outputs CSS is configured.";
+});
 editor.addEventListener("input", renderEditor);
 editor.addEventListener("click", renderEditor);
 editor.addEventListener("keyup", renderEditor);
