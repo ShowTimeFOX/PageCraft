@@ -68,3 +68,9 @@ button {
 #status {
   min-height: 1.4em;
 }
+
+button.secondary {
+  background: transparent;
+  border: 1px solid GrayText;
+  color: inherit;
+}

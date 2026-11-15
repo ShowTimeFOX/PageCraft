@@ -128,7 +128,72 @@ kbd {
   padding: 8px 16px;
 }
 
-#comfy-prompt {
+.prompt-header {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.provider-label {
+  color: var(--editor-muted);
+  font-size: 11px;
+  margin-left: auto;
+}
+
+.prompt-row {
+  align-items: stretch;
+  display: flex;
+  gap: 8px;
+}
+
+.prompt-actions {
+  display: grid;
+  gap: 4px;
+  min-width: 130px;
+}
+
+.check {
+  align-items: center;
+  display: inline-flex;
+  font-weight: 500;
+  gap: 5px;
+}
+
+.check input {
+  min-height: 0;
+  margin: 0;
+}
+
+button.primary {
+  background: var(--editor-blue);
+  border-color: var(--editor-blue);
+  color: var(--editor-bg);
+  font-weight: 600;
+}
+
+button.primary:hover:not(:disabled) {
+  background: var(--editor-blue);
+  filter: brightness(1.1);
+}
+
+button.link {
+  border: 0;
+  color: var(--editor-blue);
+  font-size: 12px;
+  min-height: 0;
+  padding: 0;
+}
+
+button.link:hover:not(:disabled) {
+  background: transparent;
+  text-decoration: underline;
+}
+
+#generation-process.error {
+  color: var(--editor-orange);
+}
+
+#ai-prompt {
   background: transparent;
   border: 1px solid var(--editor-border);
   border-radius: 5px;

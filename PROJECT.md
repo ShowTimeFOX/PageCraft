@@ -2,41 +2,22 @@
 
 ## Purpose
 
-PageCraft is a cross-browser extension for creating custom CSS styles on websites. The first release targets Chrome and Firefox using Manifest V3.
+PageCraft is a cross-browser (Chrome and Firefox, Manifest V3) extension that creates dedicated CSS themes for websites from user instructions, using a selectable AI provider (Anthropic, OpenAI, Gemini, or a local OpenAI-compatible server), with a hand-editing CSS editor.
 
-## Current scope
+## Constraints
 
-- Provide an extension popup with a global enable toggle and dark/light CSS presets.
-- Save reusable named custom styles locally and select them per HTTP or HTTPS hostname.
-- Provide a full-window CustomStyle editor with syntax highlighting, active-line highlighting, line numbers, bracket pairing, CSS property/value suggestions, inline color picking, keyboard shortcuts, and style management.
-- Provide a ComfyUI prompt field and generation status area; do not claim generation until a text/LLM workflow that returns CSS is configured.
-- Automatically apply global presets and selected site styles when pages load.
-- Keep the manifest generator (`manifest.js`) and the browser-loadable manifest (`manifest.json`) in sync.
-- Avoid network requests and keep saved styles in browser-local storage.
+- AI output is CSS only; never generate or execute JavaScript (MV3 remote-code policy).
+- Sanitize all AI-generated CSS (`lib/ai/sanitize.ts`) before preview or save: no `@import`, no external `url()`.
+- AI requests run from extension pages (editor, options), not the service worker, to avoid MV3 worker suspension during streaming.
+- Store data and API keys in `storage.local` only. Network requests go only to the user-selected provider.
 
-## Project files
+## Layout
 
-- `manifest.js` generates the browser-required `manifest.json`.
-- `icon.png` is used as the extension icon in browser metadata and the toolbar.
-- `content.js` loads the saved style for the current hostname and updates it when local styles change.
-- `popup.html`, `popup.css`, and `popup.js` implement the compact popup controls.
-- `editor.html`, `editor.css`, and `editor.js` implement custom style management.
-- `README.md` documents installation and basic usage in Chrome and Firefox.
-- `CHANGELOG.md` records notable releases and changes.
-- `LICENCE` contains the project's MIT License.
-
-## Compatibility and permissions
-
-The extension uses Manifest V3 APIs available in current Chrome and Firefox releases (Firefox 109+). It requires local storage, active-tab access to identify the current site, and access to websites to apply the user-authored CSS. Styles are stored only in the browser.
+- `wxt.config.ts`: manifest configuration (WXT generates the per-browser manifest).
+- `entrypoints/`: `content.ts`, `popup/`, `editor/`, `options/`.
+- `lib/`: storage, presets, messages, page digest, `ai/` (providers, prompt, sanitize).
+- `docs.html`: developer documentation and roadmap/to-do list. Keep it updated when features land.
 
 ## Development and validation
 
-After editing manifest configuration, run `node manifest.js` and reload the extension in the browser. Install unpacked in Chrome via `chrome://extensions`; load temporarily in Firefox via `about:debugging#/runtime/this-firefox`.
-
-Manual smoke test:
-
-1. Load the extension in Chrome and Firefox.
-2. Choose a global preset and confirm it applies across HTTP or HTTPS pages.
-3. Create a named custom style and confirm it applies to the current hostname.
-4. Reload the page and confirm the preset and custom style remain applied.
-5. Disable PageCraft and confirm all PageCraft styles are removed; enable it again and confirm they return.
+Node.js 22+. Run `npm run compile`, `npm run build` and `npm run build:firefox` before committing. Follow the manual smoke test in `docs.html#testing`.

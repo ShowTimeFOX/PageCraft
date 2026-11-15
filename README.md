@@ -1,50 +1,53 @@
 # PageCraft
 
-PageCraft is a lightweight browser extension for writing and saving custom CSS for individual websites. It supports Chrome and Firefox with Manifest V3.
+PageCraft is a browser extension for Chrome and Firefox (Manifest V3) that creates dedicated CSS themes for websites. Describe the look you want and an AI model (Anthropic, OpenAI, Gemini, or a local model through Ollama/LM Studio) writes the CSS, or write it yourself in the built-in editor.
+
+Full developer documentation and the roadmap are in [docs.html](docs.html) (open it in a browser).
 
 ## Features
 
-- Turn PageCraft on or off and choose a global dark or light mode preset.
-- Select reusable named custom styles per website from the popup.
-- Create and edit named styles in the CustomStyle editor.
-- Edit in a full-window CSS workspace with syntax highlighting, active-line highlighting, and line numbers.
-- Use `Ctrl+S` / `Cmd+S` to save, `Ctrl+N` / `Cmd+N` for a new style, and `Tab` / `Shift+Tab` to indent or outdent.
-- Automatically close and pair brackets and quotes; get CSS property/value suggestions and an inline color picker beside color values.
-- Describe a desired style in the ComfyUI prompt field. CSS generation is not active until a ComfyUI text/LLM workflow that returns CSS is configured; PageCraft clearly reports this instead of presenting fabricated output.
-- Styles and settings are saved in browser-local storage and automatically reapplied.
-- CSS is stored locally in the browser; PageCraft does not send it anywhere.
+- Turn PageCraft on or off and choose a global dark or light preset.
+- Save named custom styles and pick one per website from the popup.
+- **AI theme generation:** describe a theme, watch the CSS stream into the editor with a live preview on the site, refine it with follow-up instructions, then save.
+- Providers: Anthropic, OpenAI (and OpenAI-compatible services), Google Gemini, and local OpenAI-compatible servers (Ollama, LM Studio, llama.cpp).
+- Generated CSS is cleaned before use: `@import` and external `url()` references are removed so a theme can't load remote resources or leak page data.
+- CSS editor with syntax highlighting, line numbers, completions, bracket pairing and an inline color picker. Shortcuts: `Ctrl+Enter` generate, `Ctrl+S` save, `Ctrl+N` new style.
 
-## Install in Chrome
+## Development
 
-1. Open `chrome://extensions`.
-2. Turn on **Developer mode**.
-3. Select **Load unpacked** and choose this project folder.
-4. Open a website, select the PageCraft toolbar button, choose a preset or custom style, or open **CustomStyle editor** to create one.
-
-## Install in Firefox
-
-1. Open `about:debugging#/runtime/this-firefox`.
-2. Select **Load Temporary Add-on…**.
-3. Choose this project's `manifest.json`.
-4. Open a website, select the PageCraft toolbar button, choose a preset or custom style, or open **CustomStyle editor** to create one.
-
-Temporary Firefox add-ons are removed when Firefox restarts. For a permanent installation, package and sign the extension through Mozilla Add-ons.
-
-## Regenerate the browser manifest
-
-Browsers require a file named `manifest.json`. The requested `manifest.js` is its dependency-free source generator. After changing the manifest configuration, run:
+Requires Node.js 22+.
 
 ```sh
-node manifest.js
+npm install
+npm run dev            # Chrome with hot reload
+npm run dev:firefox    # Firefox with hot reload
+npm run build          # .output/chrome-mv3
+npm run build:firefox  # .output/firefox-mv3
+npm run zip            # store package (zip:firefox for AMO)
+npm run compile        # type-check
 ```
 
-Then reload the unpacked extension in the browser.
+### Load a build
 
-## Permissions
+- **Chrome:** `chrome://extensions` → Developer mode → **Load unpacked** → `.output/chrome-mv3`.
+- **Firefox:** `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…** → `.output/firefox-mv3/manifest.json`.
 
-PageCraft uses local storage for saved CSS and settings, the active-tab permission to identify the website open in its popup, and access to websites so its content script can apply saved styles. It only reads and writes the CSS that you enter.
+## Set up an AI provider
+
+Open the popup → **AI settings**, choose a provider, enter an API key (not needed for local models), press **Load models**, pick a model, **Test connection**, and **Save**.
+
+For Ollama, allow extension origins and restart Ollama:
+
+```sh
+setx OLLAMA_ORIGINS "chrome-extension://*,moz-extension://*"   # Windows
+```
+
+## Privacy and permissions
+
+Styles, settings and API keys are stored in the browser's local extension storage. When you press **Generate**, PageCraft sends your instructions, your current CSS (when refining) and a short page description (URL without query string, title, DOM outline, colors, fonts, CSS variables) to the provider you selected, and nothing else. It needs storage, active-tab and website access to apply themes and to reach provider APIs.
 
 ## Project information
 
-- See [CHANGELOG.md](CHANGELOG.md) for release notes.
-- PageCraft is distributed under the MIT License; see [LICENCE](LICENCE).
+- [docs.html](docs.html): architecture, generation pipeline, security notes, roadmap.
+- [CHANGELOG.md](CHANGELOG.md): release notes.
+- MIT License; see [LICENCE](LICENCE).
