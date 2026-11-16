@@ -3,33 +3,44 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Style this page with PageCraft</title>
+    <!-- WXT uses this as the toolbar tooltip (action.default_title). -->
+    <title>__MSG_extActionTitle__</title>
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
     <main>
       <header>
         <div>
-          <h1>PageCraft</h1>
-          <p id="site-name">Loading current site…</p>
+          <h1 data-i18n="extName">PageCraft</h1>
+          <p id="site-name"></p>
         </div>
-        <button id="toggle-button" type="button" aria-pressed="true">Loading…</button>
+        <button id="toggle-button" type="button" aria-pressed="true"></button>
       </header>
 
-      <label for="preset-select">Global preset</label>
+      <div id="access-banner" class="banner" hidden>
+        <p data-i18n="popupAccessPrompt">PageCraft isn't enabled on this site yet.</p>
+        <button id="grant-site-button" type="button" class="primary" data-i18n="popupEnableSite">Enable on this site</button>
+        <button id="grant-all-button" type="button" class="secondary" data-i18n="popupEnableAll">Enable on all sites</button>
+      </div>
+
+      <label for="preset-select" data-i18n="popupPreset">Global preset</label>
       <select id="preset-select">
-        <option value="none">No preset</option>
-        <option value="dark">Dark mode</option>
-        <option value="light">Light mode</option>
+        <option value="none" data-i18n="popupPresetNone">No preset</option>
+        <option value="dark" data-i18n="popupPresetDark">Dark mode</option>
+        <option value="light" data-i18n="popupPresetLight">Light mode</option>
       </select>
 
-      <label for="my-styles-select">MyStyles for this site</label>
-      <select id="my-styles-select" disabled>
-        <option value="">No custom style</option>
-      </select>
+      <label for="my-styles-select" data-i18n="popupStyleForSite">Style for this site</label>
+      <select id="my-styles-select" disabled></select>
+      <p id="rule-note" class="note" hidden></p>
 
-      <button id="custom-style-button" type="button">CustomStyle editor</button>
-      <button id="settings-button" type="button" class="secondary">AI settings</button>
+      <label class="check">
+        <input id="pause-toggle" type="checkbox" disabled>
+        <span data-i18n="popupPauseSite">Pause PageCraft on this site</span>
+      </label>
+
+      <button id="custom-style-button" type="button" data-i18n="popupOpenEditor">CustomStyle editor</button>
+      <button id="settings-button" type="button" class="secondary" data-i18n="popupOpenSettings">Settings &amp; themes</button>
       <p id="status" role="status" aria-live="polite"></p>
     </main>
     <script type="module" src="./main.ts"></script>

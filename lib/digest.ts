@@ -2,8 +2,13 @@ import type { PageDigest } from "./messages";
 
 const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "LINK", "META", "SVG", "PATH", "IFRAME", "BR", "WBR"]);
 const KEEP_ATTRS = ["role", "aria-label", "type", "name"];
-const MAX_OUTLINE_LINES = 220;
-const MAX_DEPTH = 9;
+export const DIGEST_LIMITS = {
+  small: { lines: 80, depth: 6, properties: 30 },
+  normal: { lines: 220, depth: 9, properties: 80 },
+  large: { lines: 450, depth: 12, properties: 150 },
+} as const;
+
+type Limits = (typeof DIGEST_LIMITS)[keyof typeof DIGEST_LIMITS];
 
 /** Heuristic for build-generated class names that make brittle selectors. */
 function isHashedClass(name: string): boolean {
@@ -14,7 +19,7 @@ function isHashedClass(name: string): boolean {
   );
 }
 
-function describe(el: Element): string {
+export function describeElement(el: Element): string {
   let label = el.tagName.toLowerCase();
   if (el.id && !isHashedClass(el.id)) label += `#${el.id}`;
   const classes = Array.from(el.classList).filter((c) => !isHashedClass(c)).slice(0, 4);
@@ -32,24 +37,24 @@ function describe(el: Element): string {
   return label;
 }
 
-function buildOutline(root: Element): string {
+function buildOutline(root: Element, limits: Limits): string {
   const lines: string[] = [];
   const walk = (el: Element, depth: number) => {
-    if (lines.length >= MAX_OUTLINE_LINES || depth > MAX_DEPTH) return;
+    if (lines.length >= limits.lines || depth > limits.depth) return;
     const children = Array.from(el.children).filter((c) => !SKIP_TAGS.has(c.tagName.toUpperCase()));
     let i = 0;
-    while (i < children.length && lines.length < MAX_OUTLINE_LINES) {
+    while (i < children.length && lines.length < limits.lines) {
       const child = children[i]!;
-      const label = describe(child);
+      const label = describeElement(child);
       let run = 1;
-      while (i + run < children.length && describe(children[i + run]!) === label) run++;
+      while (i + run < children.length && describeElement(children[i + run]!) === label) run++;
       lines.push(`${"  ".repeat(depth)}${label}${run > 1 ? ` ×${run}` : ""}`);
       walk(child, depth + 1);
       i += run;
     }
   };
   walk(root, 0);
-  if (lines.length >= MAX_OUTLINE_LINES) lines.push("… (truncated)");
+  if (lines.length >= limits.lines) lines.push("… (truncated)");
   return lines.join("\n");
 }
 
@@ -57,7 +62,7 @@ function topValues(counts: Map<string, number>, limit: number): string[] {
   return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit).map(([v]) => v);
 }
 
-function collectCustomProperties(ownStyleId: string): string[] {
+function collectCustomProperties(ownStyleId: string, max: number): string[] {
   const props = new Map<string, string>();
   for (const sheet of Array.from(document.styleSheets)) {
     if ((sheet.ownerNode as Element | null)?.id === ownStyleId) continue;
@@ -83,22 +88,22 @@ function collectCustomProperties(ownStyleId: string): string[] {
       props.set(name, computed.getPropertyValue(name).trim().slice(0, 60));
     }
   }
-  return [...props.entries()].slice(0, 80).map(([k, v]) => `${k}: ${v}`);
+  return [...props.entries()].slice(0, max).map(([k, v]) => `${k}: ${v}`);
 }
 
 /** Describe the page as the site styles it, with PageCraft's own sheet switched off while measuring. */
-export function buildPageDigest(ownStyleId: string): PageDigest {
+export function buildPageDigest(ownStyleId: string, size: keyof typeof DIGEST_LIMITS = "normal"): PageDigest {
   const own = (document.getElementById(ownStyleId) as HTMLStyleElement | null)?.sheet;
   const wasDisabled = own?.disabled ?? false;
   if (own) own.disabled = true;
   try {
-    return measure(ownStyleId);
+    return measure(ownStyleId, DIGEST_LIMITS[size] ?? DIGEST_LIMITS.normal);
   } finally {
     if (own) own.disabled = wasDisabled;
   }
 }
 
-function measure(ownStyleId: string): PageDigest {
+function measure(ownStyleId: string, limits: Limits): PageDigest {
   const backgrounds = new Map<string, number>();
   const textColors = new Map<string, number>();
   const fonts = new Map<string, number>();
@@ -121,10 +126,10 @@ function measure(ownStyleId: string): PageDigest {
     title: document.title.slice(0, 120),
     lang: document.documentElement.lang,
     colorScheme: getComputedStyle(document.documentElement).colorScheme,
-    customProperties: collectCustomProperties(ownStyleId),
+    customProperties: collectCustomProperties(ownStyleId, limits.properties),
     backgrounds: topValues(backgrounds, 8),
     textColors: topValues(textColors, 6),
     fonts: topValues(fonts, 3),
-    outline: document.body ? buildOutline(document.body) : "",
+    outline: document.body ? buildOutline(document.body, limits) : "",
   };
 }

@@ -1,0 +1,542 @@
+{
+  "editorCancel": {
+    "message": "Cancel"
+  },
+  "editorClearChat": {
+    "message": "Clear conversation"
+  },
+  "editorDelete": {
+    "message": "Delete"
+  },
+  "editorDeleteTitle": {
+    "message": "Delete this style"
+  },
+  "editorGenerateTitle": {
+    "message": "Generate CSS (Ctrl+Enter)"
+  },
+  "editorHistoryTitle": {
+    "message": "Load a previously saved version"
+  },
+  "editorLivePreview": {
+    "message": "Live preview"
+  },
+  "editorLivePreviewTitle": {
+    "message": "Show unsaved CSS on the website tab while you edit"
+  },
+  "editorNew": {
+    "message": "New"
+  },
+  "editorNewTitle": {
+    "message": "Start a new style (Ctrl+N)"
+  },
+  "editorPalette": {
+    "message": "Palette"
+  },
+  "editorPaletteTitle": {
+    "message": "Edit the theme's colors, fonts and shape"
+  },
+  "editorPromptLabel": {
+    "message": "Describe the theme you want"
+  },
+  "editorPromptPlaceholder": {
+    "message": "Example: Warm dark theme with amber accents, softer borders and a clearer heading hierarchy."
+  },
+  "editorRefine": {
+    "message": "Refine current"
+  },
+  "editorReview": {
+    "message": "Review"
+  },
+  "editorReviewTitle": {
+    "message": "Let the AI check the previewed theme (contrast report, plus screenshot if enabled) and fix problems"
+  },
+  "editorSave": {
+    "message": "Save"
+  },
+  "editorSaveTitle": {
+    "message": "Save and apply (Ctrl+S)"
+  },
+  "editorScreenshot": {
+    "message": "Send screenshot"
+  },
+  "editorSettings": {
+    "message": "Settings"
+  },
+  "editorShortcuts": {
+    "message": "Ctrl+Enter: generate · Ctrl+S: save · Ctrl+N: new · Ctrl+Z: undo · Ctrl+F: search · Ctrl+Space: complete"
+  },
+  "editorStyleName": {
+    "message": "Style name"
+  },
+  "editorStyleNamePlaceholder": {
+    "message": "My custom style"
+  },
+  "editorTitle": {
+    "message": "CustomStyle"
+  },
+  "editorUnlockText": {
+    "message": "Your API keys are protected with a passphrase. Enter it once for this browser session."
+  },
+  "editorUnlockTitle": {
+    "message": "Unlock your API keys"
+  },
+  "extActionTitle": {
+    "message": "Style this page with PageCraft"
+  },
+  "extDescription": {
+    "message": "Create custom CSS themes for the websites you visit, by hand or with AI."
+  },
+  "extName": {
+    "message": "PageCraft"
+  },
+  "optionsAccessAll": {
+    "message": "Enabled on all sites."
+  },
+  "optionsAccessHeading": {
+    "message": "Site access"
+  },
+  "optionsAccessLead": {
+    "message": "PageCraft only runs on sites you enable. Enable sites from the popup, or all sites here."
+  },
+  "optionsAccessNone": {
+    "message": "Not enabled on any site yet."
+  },
+  "optionsAccessSome": {
+    "message": "Enabled on {0} sites:"
+  },
+  "optionsAddOverride": {
+    "message": "Add site"
+  },
+  "optionsAddPattern": {
+    "message": "Add"
+  },
+  "optionsAddPatternFor": {
+    "message": "Add a site pattern for {0}"
+  },
+  "optionsAiHeading": {
+    "message": "AI provider"
+  },
+  "optionsAiLead": {
+    "message": "Choose which AI writes your themes. Keys are stored only in this browser and sent only to the provider you pick."
+  },
+  "optionsAllGranted": {
+    "message": "Enabled on all sites."
+  },
+  "optionsApiKey": {
+    "message": "API key"
+  },
+  "optionsAppliesTo": {
+    "message": "Applies to"
+  },
+  "optionsApplyEverywhere": {
+    "message": "Every site"
+  },
+  "optionsBackupHeading": {
+    "message": "Import & export"
+  },
+  "optionsBackupHelp": {
+    "message": "Exports contain styles and site rules, never API keys, history or conversations. Imported CSS is checked and external references are removed."
+  },
+  "optionsBaseUrl": {
+    "message": "Base URL"
+  },
+  "optionsConnected": {
+    "message": "Connected. {0} replied: “{1}”"
+  },
+  "optionsDefault": {
+    "message": "Default"
+  },
+  "optionsDeleteStyle": {
+    "message": "Delete"
+  },
+  "optionsDeleteStyleConfirm": {
+    "message": "Delete “{0}” and its site rules?"
+  },
+  "optionsDigestLarge": {
+    "message": "Large (more precise on complex sites)"
+  },
+  "optionsDigestNormal": {
+    "message": "Normal"
+  },
+  "optionsDigestSize": {
+    "message": "Page detail sent to the AI"
+  },
+  "optionsDigestSmall": {
+    "message": "Small (cheaper, less precise)"
+  },
+  "optionsDisableRule": {
+    "message": "Pause this rule"
+  },
+  "optionsEnableAll": {
+    "message": "Enable on all sites"
+  },
+  "optionsEnableRule": {
+    "message": "Resume this rule"
+  },
+  "optionsEncrypting": {
+    "message": "Encrypting…"
+  },
+  "optionsEverySite": {
+    "message": "every site"
+  },
+  "optionsExport": {
+    "message": "Export all"
+  },
+  "optionsExportOne": {
+    "message": "Export"
+  },
+  "optionsExported": {
+    "message": "Exported {0} styles."
+  },
+  "optionsFrames": {
+    "message": "Inside iframes"
+  },
+  "optionsFramesHelp": {
+    "message": "(each frame uses the style for its own site; presets apply everywhere)"
+  },
+  "optionsFramesShort": {
+    "message": "Iframes"
+  },
+  "optionsHide": {
+    "message": "Hide"
+  },
+  "optionsImport": {
+    "message": "Import…"
+  },
+  "optionsImportFailed": {
+    "message": "Import failed: {0}"
+  },
+  "optionsImportTooLarge": {
+    "message": "The file is too large."
+  },
+  "optionsImported": {
+    "message": "Imported: {0} new, {1} updated."
+  },
+  "optionsInjectionSaved": {
+    "message": "Saved. Open tabs update right away."
+  },
+  "optionsInputPrice": {
+    "message": "Input USD/M"
+  },
+  "optionsInvalidHost": {
+    "message": "“{0}” isn't a valid host name."
+  },
+  "optionsInvalidPattern": {
+    "message": "“{0}” isn't a valid pattern."
+  },
+  "optionsKeyLockedNote": {
+    "message": "Your keys are protected. Unlock them under Key protection to view or change them."
+  },
+  "optionsKeyOptional": {
+    "message": "(optional for local servers)"
+  },
+  "optionsKeysHeading": {
+    "message": "API key protection"
+  },
+  "optionsKeysLead": {
+    "message": "Optionally encrypt your API keys with a passphrase. You'll enter it once per browser session. This protects keys on disk; it can't protect against malware on an unlocked computer."
+  },
+  "optionsLoadFailed": {
+    "message": "Could not load settings: {0}"
+  },
+  "optionsLoadModels": {
+    "message": "Load models"
+  },
+  "optionsLoadingModels": {
+    "message": "Loading models…"
+  },
+  "optionsLockNow": {
+    "message": "Lock now"
+  },
+  "optionsModel": {
+    "message": "Model"
+  },
+  "optionsModelPlaceholder": {
+    "message": "Load models or type an id"
+  },
+  "optionsModelsFound": {
+    "message": "Found {0} models. Pick one in the Model field."
+  },
+  "optionsNavAccess": {
+    "message": "Site access"
+  },
+  "optionsNavAi": {
+    "message": "AI"
+  },
+  "optionsNavKeys": {
+    "message": "Key protection"
+  },
+  "optionsNavPrivacy": {
+    "message": "Privacy"
+  },
+  "optionsNavThemes": {
+    "message": "Themes & sites"
+  },
+  "optionsNeedsProviderAccess": {
+    "message": "PageCraft needs permission to contact {0}. Allow it when the browser asks."
+  },
+  "optionsNoModels": {
+    "message": "The provider returned no models."
+  },
+  "optionsNoThemes": {
+    "message": "No styles yet. Open the CustomStyle editor from the popup on any site to create one."
+  },
+  "optionsNotApplied": {
+    "message": "Not applied anywhere yet."
+  },
+  "optionsOffValue": {
+    "message": "Off"
+  },
+  "optionsOn": {
+    "message": "On"
+  },
+  "optionsOutputPrice": {
+    "message": "Output USD/M"
+  },
+  "optionsOverridePlaceholder": {
+    "message": "example.com"
+  },
+  "optionsOverridesHeading": {
+    "message": "Per-site overrides"
+  },
+  "optionsOverridesHelp": {
+    "message": "Pause PageCraft on a site, or change iframe and web-component behaviour for one site."
+  },
+  "optionsPassphrase": {
+    "message": "Passphrase (at least 8 characters)"
+  },
+  "optionsPassphraseMismatch": {
+    "message": "The passphrases don't match."
+  },
+  "optionsPassphraseRepeat": {
+    "message": "Repeat passphrase"
+  },
+  "optionsPassphraseShort": {
+    "message": "Passphrase"
+  },
+  "optionsPassphraseWarning": {
+    "message": "If you forget it, you'll need to enter your API keys again. There is no recovery."
+  },
+  "optionsPatternPlaceholder": {
+    "message": "example.com, *.example.com, example.com/docs/*"
+  },
+  "optionsPaused": {
+    "message": "Paused"
+  },
+  "optionsPricesHelp": {
+    "message": "Enter your provider's current prices in US dollars per million tokens. PageCraft doesn't ship prices because they change; without them it shows token counts only."
+  },
+  "optionsPricesSummary": {
+    "message": "Prices for cost estimates (optional)"
+  },
+  "optionsPrivacyHeading": {
+    "message": "What gets sent"
+  },
+  "optionsPrivacyText": {
+    "message": "When you press Generate or Review, PageCraft sends your instructions, the recent conversation, your current theme (when refining) and a short page description (URL without query string, title, DOM outline, colors, fonts, CSS variables) to the selected provider. Review also sends a contrast report (element descriptions and colors, no text). With “Send screenshot” on, a downscaled screenshot of the visible part of the page is sent too, and it can show page text. Nothing is sent anywhere else."
+  },
+  "optionsProtectKeys": {
+    "message": "Protect keys"
+  },
+  "optionsProvider": {
+    "message": "Provider"
+  },
+  "optionsRemove": {
+    "message": "Remove"
+  },
+  "optionsRemoveProtection": {
+    "message": "Remove protection"
+  },
+  "optionsRemoveProtectionConfirm": {
+    "message": "Store your API keys unencrypted again?"
+  },
+  "optionsRemoveRule": {
+    "message": "Remove rule"
+  },
+  "optionsRestrict": {
+    "message": "Only sites listed above"
+  },
+  "optionsRestricted": {
+    "message": "Now enabled only on the sites listed."
+  },
+  "optionsRevokeSite": {
+    "message": "Disable on this site"
+  },
+  "optionsRuleAdded": {
+    "message": "“{0}” now applies to {1}."
+  },
+  "optionsRuleDisabled": {
+    "message": "Paused {0}."
+  },
+  "optionsRuleEnabled": {
+    "message": "Resumed {0}."
+  },
+  "optionsRuleRemoved": {
+    "message": "Removed {0}."
+  },
+  "optionsSave": {
+    "message": "Save"
+  },
+  "optionsSaveFailed": {
+    "message": "Could not save: {0}"
+  },
+  "optionsSaved": {
+    "message": "Saved. {0} is now used for generation."
+  },
+  "optionsSavedNoAccess": {
+    "message": "Saved, but: {0}"
+  },
+  "optionsShadow": {
+    "message": "Inside web components (open shadow DOM)"
+  },
+  "optionsShadowHelp": {
+    "message": "(themes more of some sites, but can change how components look)"
+  },
+  "optionsShadowShort": {
+    "message": "Web components"
+  },
+  "optionsShow": {
+    "message": "Show"
+  },
+  "optionsSite": {
+    "message": "Site"
+  },
+  "optionsSiteRevoked": {
+    "message": "Disabled on {0}."
+  },
+  "optionsStyleDeleted": {
+    "message": "Deleted “{0}”."
+  },
+  "optionsTest": {
+    "message": "Test connection"
+  },
+  "optionsTesting": {
+    "message": "Sending a test request…"
+  },
+  "optionsThemesHeading": {
+    "message": "Themes & sites"
+  },
+  "optionsThemesLead": {
+    "message": "Choose where each style applies. Patterns: example.com · *.example.com (with subdomains) · example.com/docs/* (path) · * (every site). The most specific match wins."
+  },
+  "optionsTitle": {
+    "message": "PageCraft settings"
+  },
+  "optionsUnlock": {
+    "message": "Unlock"
+  },
+  "optionsUnlockFirst": {
+    "message": "Unlock your API keys first (Key protection)."
+  },
+  "optionsUnlocking": {
+    "message": "Unlocking…"
+  },
+  "optionsVaultCreated": {
+    "message": "Your keys are now encrypted."
+  },
+  "optionsVaultLocked": {
+    "message": "Protected and locked."
+  },
+  "optionsVaultLockedStatus": {
+    "message": "Locked. You'll be asked for the passphrase next time."
+  },
+  "optionsVaultOff": {
+    "message": "Not protected: keys are stored unencrypted in this browser."
+  },
+  "optionsVaultRemoved": {
+    "message": "Protection removed. Keys are stored unencrypted."
+  },
+  "optionsVaultUnlocked": {
+    "message": "Protected and unlocked for this browser session."
+  },
+  "optionsVaultUnlockedStatus": {
+    "message": "Unlocked for this browser session."
+  },
+  "optionsWhereHeading": {
+    "message": "Where themes apply"
+  },
+  "popupAccessDenied": {
+    "message": "Access was not granted."
+  },
+  "popupAccessGranted": {
+    "message": "Access granted. Themes now apply here."
+  },
+  "popupAccessPrompt": {
+    "message": "PageCraft isn't enabled on this site yet."
+  },
+  "popupDisabled": {
+    "message": "PageCraft disabled."
+  },
+  "popupEditorFailed": {
+    "message": "Could not open the style editor: {0}"
+  },
+  "popupEnableAll": {
+    "message": "Enable on all sites"
+  },
+  "popupEnableSite": {
+    "message": "Enable on this site"
+  },
+  "popupEnabled": {
+    "message": "PageCraft enabled."
+  },
+  "popupLoadFailed": {
+    "message": "Could not load PageCraft settings."
+  },
+  "popupNoStyle": {
+    "message": "No custom style"
+  },
+  "popupNotAWebsite": {
+    "message": "Global settings apply to websites."
+  },
+  "popupOff": {
+    "message": "PageCraft off"
+  },
+  "popupOn": {
+    "message": "PageCraft on"
+  },
+  "popupOpenEditor": {
+    "message": "CustomStyle editor"
+  },
+  "popupOpenSettings": {
+    "message": "Settings & themes"
+  },
+  "popupPauseSite": {
+    "message": "Pause PageCraft on this site"
+  },
+  "popupPaused": {
+    "message": "PageCraft is paused on this site."
+  },
+  "popupPreset": {
+    "message": "Global preset"
+  },
+  "popupPresetDark": {
+    "message": "Dark mode"
+  },
+  "popupPresetLight": {
+    "message": "Light mode"
+  },
+  "popupPresetNone": {
+    "message": "No preset"
+  },
+  "popupPresetSaved": {
+    "message": "Global preset saved."
+  },
+  "popupResumed": {
+    "message": "PageCraft is active on this site again."
+  },
+  "popupRuleNote": {
+    "message": "“{0}” applies here through the rule {1}."
+  },
+  "popupSaveFailed": {
+    "message": "Could not save: {0}"
+  },
+  "popupStyleApplied": {
+    "message": "Style applied to this site."
+  },
+  "popupStyleForSite": {
+    "message": "Style for this site"
+  },
+  "popupStyleRemoved": {
+    "message": "Style removed from this site."
+  }
+}

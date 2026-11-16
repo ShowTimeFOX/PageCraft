@@ -1,8 +1,56 @@
 import type { ProviderConfig, ProviderId } from "../storage";
 
+export type ContentPart =
+  | { type: "text"; text: string }
+  | { type: "image"; mediaType: "image/jpeg" | "image/png"; data: string /* base64, no data: prefix */ };
+
 export interface ChatMessage {
   role: "user" | "assistant";
-  content: string;
+  content: string | ContentPart[];
+}
+
+const partsOf = (content: ChatMessage["content"]): ContentPart[] =>
+  typeof content === "string" ? [{ type: "text", text: content }] : content;
+
+/** Anthropic Messages format. */
+function toAnthropic(message: ChatMessage) {
+  if (typeof message.content === "string") return message;
+  return {
+    role: message.role,
+    content: message.content.map((part) =>
+      part.type === "text"
+        ? { type: "text", text: part.text }
+        : { type: "image", source: { type: "base64", media_type: part.mediaType, data: part.data } },
+    ),
+  };
+}
+
+/** OpenAI Chat Completions format (also Ollama / LM Studio vision models). */
+function toOpenAi(message: ChatMessage) {
+  if (typeof message.content === "string") return message;
+  return {
+    role: message.role,
+    content: message.content.map((part) =>
+      part.type === "text"
+        ? { type: "text", text: part.text }
+        : { type: "image_url", image_url: { url: `data:${part.mediaType};base64,${part.data}` } },
+    ),
+  };
+}
+
+/** Gemini generateContent format. */
+function toGemini(message: ChatMessage) {
+  return {
+    role: message.role === "assistant" ? "model" : "user",
+    parts: partsOf(message.content).map((part) =>
+      part.type === "text" ? { text: part.text } : { inlineData: { mimeType: part.mediaType, data: part.data } },
+    ),
+  };
+}
+
+export interface Usage {
+  inputTokens?: number;
+  outputTokens?: number;
 }
 
 export interface GenerateRequest {
@@ -10,6 +58,8 @@ export interface GenerateRequest {
   messages: ChatMessage[];
   maxTokens?: number;
   signal?: AbortSignal;
+  /** Called with token counts as the provider reports them (cumulative, may be partial). */
+  onUsage?: (usage: Usage) => void;
 }
 
 export interface ProviderInfo {
@@ -122,16 +172,24 @@ async function* streamAnthropic(config: ProviderConfig, req: GenerateRequest): A
       model: config.model,
       max_tokens: req.maxTokens ?? 8000,
       system: req.system,
-      messages: req.messages,
+      messages: req.messages.map(toAnthropic),
       stream: true,
     }),
     signal: req.signal,
   });
   await ensureOk(response, "anthropic");
+  const usage: Usage = {};
   for await (const data of readSse(response)) {
     const event = parseJson(data);
     if (event?.type === "content_block_delta" && event.delta?.type === "text_delta") {
       yield event.delta.text;
+    } else if (event?.type === "message_start" && event.message?.usage) {
+      const u = event.message.usage;
+      usage.inputTokens = (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0);
+      req.onUsage?.({ ...usage });
+    } else if (event?.type === "message_delta" && event.usage?.output_tokens !== undefined) {
+      usage.outputTokens = event.usage.output_tokens;
+      req.onUsage?.({ ...usage });
     } else if (event?.type === "error") {
       throw new ProviderError(event.error?.message ?? "Anthropic stream error.");
     }
@@ -152,8 +210,11 @@ async function* streamOpenAiCompatible(
     headers,
     body: JSON.stringify({
       model: config.model,
-      messages: [{ role: "system", content: req.system }, ...req.messages],
+      messages: [{ role: "system", content: req.system }, ...req.messages.map(toOpenAi)],
       stream: true,
+      // OpenAI reports usage in a final chunk when asked. Not sent to local servers,
+      // some of which reject unknown fields.
+      ...(provider === "openai" && { stream_options: { include_usage: true } }),
     }),
     signal: req.signal,
   });
@@ -162,6 +223,7 @@ async function* streamOpenAiCompatible(
     if (data === "[DONE]") return;
     const chunk = parseJson(data);
     if (chunk?.error) throw new ProviderError(chunk.error.message ?? "Stream error.");
+    if (chunk?.usage) req.onUsage?.({ inputTokens: chunk.usage.prompt_tokens, outputTokens: chunk.usage.completion_tokens });
     const text = chunk?.choices?.[0]?.delta?.content;
     if (typeof text === "string" && text) yield text;
   }
@@ -178,10 +240,7 @@ async function* streamGemini(config: ProviderConfig, req: GenerateRequest): Asyn
       headers: { "content-type": "application/json", "x-goog-api-key": config.apiKey },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: req.system }] },
-        contents: req.messages.map((m) => ({
-          role: m.role === "assistant" ? "model" : "user",
-          parts: [{ text: m.content }],
-        })),
+        contents: req.messages.map(toGemini),
         generationConfig: { maxOutputTokens: req.maxTokens ?? 8000 },
       }),
       signal: req.signal,
@@ -191,6 +250,9 @@ async function* streamGemini(config: ProviderConfig, req: GenerateRequest): Asyn
   for await (const data of readSse(response)) {
     const chunk = parseJson(data);
     if (chunk?.error) throw new ProviderError(chunk.error.message ?? "Gemini stream error.");
+    if (chunk?.usageMetadata) {
+      req.onUsage?.({ inputTokens: chunk.usageMetadata.promptTokenCount, outputTokens: chunk.usageMetadata.candidatesTokenCount });
+    }
     for (const part of chunk?.candidates?.[0]?.content?.parts ?? []) {
       if (typeof part?.text === "string" && !part.thought) yield part.text;
     }

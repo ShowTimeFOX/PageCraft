@@ -12,7 +12,10 @@ export interface PageDigest {
   outline: string;
 }
 
-export type ContentRequest = { type: "pagecraft:get-digest" };
+export type ContentRequest =
+  | { type: "pagecraft:get-digest"; size?: "small" | "normal" | "large" }
+  | { type: "pagecraft:contrast" }
+  | { type: "pagecraft:ping" };
 
 /** Name of the port an editor opens to a tab for live preview. */
 export const PREVIEW_PORT = "pagecraft:preview";

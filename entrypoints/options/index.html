@@ -9,40 +9,153 @@
   </head>
   <body>
     <main>
-      <h1>PageCraft · AI settings</h1>
-      <p class="lead">Choose which AI writes your themes. Keys are stored only in this browser's local extension storage and are sent only to the provider you pick.</p>
+      <h1 data-i18n="optionsTitle">PageCraft settings</h1>
+      <nav class="tabs" aria-label="Sections">
+        <a href="#ai" data-i18n="optionsNavAi">AI</a>
+        <a href="#keys" data-i18n="optionsNavKeys">Key protection</a>
+        <a href="#themes" data-i18n="optionsNavThemes">Themes &amp; sites</a>
+        <a href="#access" data-i18n="optionsNavAccess">Site access</a>
+        <a href="#privacy" data-i18n="optionsNavPrivacy">Privacy</a>
+      </nav>
 
-      <form id="settings-form">
-        <label for="provider-select">Provider</label>
-        <select id="provider-select"></select>
-        <p id="provider-help" class="help"></p>
+      <!-- ------------------------------------------------------------ AI -->
+      <section id="ai">
+        <h2 data-i18n="optionsAiHeading">AI provider</h2>
+        <p class="lead" data-i18n="optionsAiLead">Choose which AI writes your themes. Keys are stored only in this browser and sent only to the provider you pick.</p>
 
-        <label for="api-key">API key <span id="key-optional" class="help">(optional for local servers)</span></label>
-        <div class="row">
-          <input id="api-key" type="password" autocomplete="off" spellcheck="false">
-          <button id="toggle-key" type="button" class="secondary">Show</button>
+        <form id="settings-form">
+          <label for="provider-select" data-i18n="optionsProvider">Provider</label>
+          <select id="provider-select"></select>
+          <p id="provider-help" class="help"></p>
+
+          <label for="api-key"><span data-i18n="optionsApiKey">API key</span> <span id="key-optional" class="help" data-i18n="optionsKeyOptional">(optional for local servers)</span></label>
+          <div class="row">
+            <input id="api-key" type="password" autocomplete="off" spellcheck="false">
+            <button id="toggle-key" type="button" class="secondary" data-i18n="optionsShow">Show</button>
+          </div>
+          <p id="key-locked-note" class="help" hidden data-i18n="optionsKeyLockedNote">Your keys are protected. Unlock them under Key protection to view or change them.</p>
+
+          <label for="base-url" data-i18n="optionsBaseUrl">Base URL</label>
+          <input id="base-url" type="url" spellcheck="false">
+
+          <label for="model" data-i18n="optionsModel">Model</label>
+          <div class="row">
+            <input id="model" type="text" list="model-list" spellcheck="false" data-i18n-placeholder="optionsModelPlaceholder">
+            <datalist id="model-list"></datalist>
+            <button id="load-models" type="button" class="secondary" data-i18n="optionsLoadModels">Load models</button>
+          </div>
+
+          <details class="advanced">
+            <summary data-i18n="optionsPricesSummary">Prices for cost estimates (optional)</summary>
+            <p class="help" data-i18n="optionsPricesHelp">Enter your provider's current prices in US dollars per million tokens. PageCraft doesn't ship prices because they change; without them it shows token counts only.</p>
+            <div class="row">
+              <label class="inline"><span data-i18n="optionsInputPrice">Input USD/M</span> <input id="input-price" type="number" min="0" step="0.01" inputmode="decimal"></label>
+              <label class="inline"><span data-i18n="optionsOutputPrice">Output USD/M</span> <input id="output-price" type="number" min="0" step="0.01" inputmode="decimal"></label>
+            </div>
+          </details>
+
+          <label for="digest-size" data-i18n="optionsDigestSize">Page detail sent to the AI</label>
+          <select id="digest-size">
+            <option value="small" data-i18n="optionsDigestSmall">Small (cheaper, less precise)</option>
+            <option value="normal" data-i18n="optionsDigestNormal">Normal</option>
+            <option value="large" data-i18n="optionsDigestLarge">Large (more precise on complex sites)</option>
+          </select>
+
+          <div class="actions">
+            <button type="submit" class="primary" data-i18n="optionsSave">Save</button>
+            <button id="test-button" type="button" class="secondary" data-i18n="optionsTest">Test connection</button>
+          </div>
+          <p id="status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <!-- ---------------------------------------------------------- keys -->
+      <section id="keys">
+        <h2 data-i18n="optionsKeysHeading">API key protection</h2>
+        <p class="lead" data-i18n="optionsKeysLead">Optionally encrypt your API keys with a passphrase. You'll enter it once per browser session. This protects keys on disk; it can't protect against malware on an unlocked computer.</p>
+        <p id="vault-state" class="state"></p>
+
+        <form id="vault-create" class="stack" hidden>
+          <label for="vault-pass-1" data-i18n="optionsPassphrase">Passphrase (at least 8 characters)</label>
+          <input id="vault-pass-1" type="password" autocomplete="new-password" minlength="8">
+          <label for="vault-pass-2" data-i18n="optionsPassphraseRepeat">Repeat passphrase</label>
+          <input id="vault-pass-2" type="password" autocomplete="new-password" minlength="8">
+          <p class="help" data-i18n="optionsPassphraseWarning">If you forget it, you'll need to enter your API keys again. There is no recovery.</p>
+          <div class="actions"><button type="submit" class="primary" data-i18n="optionsProtectKeys">Protect keys</button></div>
+        </form>
+
+        <form id="vault-unlock" class="stack" hidden>
+          <label for="vault-pass" data-i18n="optionsPassphraseShort">Passphrase</label>
+          <input id="vault-pass" type="password" autocomplete="current-password">
+          <div class="actions"><button type="submit" class="primary" data-i18n="optionsUnlock">Unlock</button></div>
+        </form>
+
+        <div id="vault-unlocked" class="actions" hidden>
+          <button id="vault-lock" type="button" class="secondary" data-i18n="optionsLockNow">Lock now</button>
+          <button id="vault-remove" type="button" class="secondary" data-i18n="optionsRemoveProtection">Remove protection</button>
         </div>
+        <p id="vault-status" class="status" role="status" aria-live="polite"></p>
+      </section>
 
-        <label for="base-url">Base URL</label>
-        <input id="base-url" type="url" spellcheck="false">
+      <!-- -------------------------------------------------------- themes -->
+      <section id="themes">
+        <h2 data-i18n="optionsThemesHeading">Themes &amp; sites</h2>
+        <p class="lead" data-i18n="optionsThemesLead">Choose where each style applies. Patterns: example.com · *.example.com (with subdomains) · example.com/docs/* (path) · * (every site). The most specific match wins.</p>
+        <div id="theme-list" class="theme-list"></div>
+        <p id="theme-empty" class="help" hidden data-i18n="optionsNoThemes">No styles yet. Open the CustomStyle editor from the popup on any site to create one.</p>
 
-        <label for="model">Model</label>
-        <div class="row">
-          <input id="model" type="text" list="model-list" spellcheck="false" placeholder="Load models or type an id">
-          <datalist id="model-list"></datalist>
-          <button id="load-models" type="button" class="secondary">Load models</button>
-        </div>
-
+        <h3 data-i18n="optionsBackupHeading">Import &amp; export</h3>
+        <p class="help" data-i18n="optionsBackupHelp">Exports contain styles and site rules, never API keys, history or conversations. Imported CSS is checked and external references are removed.</p>
         <div class="actions">
-          <button type="submit" class="primary">Save</button>
-          <button id="test-button" type="button" class="secondary">Test connection</button>
+          <button id="export-button" type="button" class="secondary" data-i18n="optionsExport">Export all</button>
+          <label class="button secondary" for="import-file"><span data-i18n="optionsImport">Import…</span></label>
+          <input id="import-file" type="file" accept="application/json,.json" class="visually-hidden">
         </div>
-        <p id="status" role="status" aria-live="polite"></p>
-      </form>
+        <p id="themes-status" class="status" role="status" aria-live="polite"></p>
+      </section>
 
-      <section class="privacy">
-        <h2>What gets sent</h2>
-        <p>When you press Generate, PageCraft sends your instructions, your current CSS (if “Refine current” is on) and a short page digest (URL without query string, title, DOM outline, colors, fonts, CSS variables) to the selected provider. No form values or page text content are sent.</p>
+      <!-- -------------------------------------------------------- access -->
+      <section id="access">
+        <h2 data-i18n="optionsAccessHeading">Site access</h2>
+        <p class="lead" data-i18n="optionsAccessLead">PageCraft only runs on sites you enable. Enable sites from the popup, or all sites here.</p>
+        <p id="access-state" class="state"></p>
+        <ul id="access-list" class="chip-list"></ul>
+        <div class="actions">
+          <button id="access-all" type="button" class="secondary" data-i18n="optionsEnableAll">Enable on all sites</button>
+          <button id="access-restrict" type="button" class="secondary" data-i18n="optionsRestrict">Only sites listed above</button>
+        </div>
+
+        <h3 data-i18n="optionsWhereHeading">Where themes apply</h3>
+        <label class="check"><input id="frames-toggle" type="checkbox"> <span data-i18n="optionsFrames">Inside iframes</span> <span class="help" data-i18n="optionsFramesHelp">(each frame uses the style for its own site; presets apply everywhere)</span></label>
+        <label class="check"><input id="shadow-toggle" type="checkbox"> <span data-i18n="optionsShadow">Inside web components (open shadow DOM)</span> <span class="help" data-i18n="optionsShadowHelp">(themes more of some sites, but can change how components look)</span></label>
+
+        <h3 data-i18n="optionsOverridesHeading">Per-site overrides</h3>
+        <p class="help" data-i18n="optionsOverridesHelp">Pause PageCraft on a site, or change iframe and web-component behaviour for one site.</p>
+        <div class="table-wrap">
+          <table id="override-table">
+            <thead>
+              <tr>
+                <th data-i18n="optionsSite">Site</th>
+                <th data-i18n="optionsPaused">Paused</th>
+                <th data-i18n="optionsFramesShort">Iframes</th>
+                <th data-i18n="optionsShadowShort">Web components</th>
+                <th><span class="visually-hidden" data-i18n="optionsRemove">Remove</span></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <form id="override-add" class="row">
+          <input id="override-host" type="text" spellcheck="false" data-i18n-placeholder="optionsOverridePlaceholder" data-i18n-aria-label="optionsSite">
+          <button type="submit" class="secondary" data-i18n="optionsAddOverride">Add site</button>
+        </form>
+        <p id="access-status" class="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- ------------------------------------------------------- privacy -->
+      <section id="privacy" class="privacy">
+        <h2 data-i18n="optionsPrivacyHeading">What gets sent</h2>
+        <p data-i18n="optionsPrivacyText">When you press Generate or Review, PageCraft sends your instructions, the recent conversation, your current theme (when refining) and a short page description (URL without query string, title, DOM outline, colors, fonts, CSS variables) to the selected provider. Review also sends a contrast report (element descriptions and colors, no text). With “Send screenshot” on, a downscaled screenshot of the visible part of the page is sent too, and it can show page text. Nothing is sent anywhere else.</p>
       </section>
     </main>
     <script type="module" src="./main.ts"></script>

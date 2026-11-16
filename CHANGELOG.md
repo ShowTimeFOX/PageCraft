@@ -2,6 +2,67 @@
 
 Notable changes to PageCraft are documented here.
 
+## [1.4.0] - 2026-11-16
+
+### Added
+
+- Site rules: apply a style to `example.com`, `*.example.com`, `example.com/docs/*` or every site (`*`). The most specific rule wins. Managed under Settings → Themes & sites. 1.x per-site choices are migrated automatically.
+- Per-site overrides: pause PageCraft on a site (popup), and force iframe or web-component theming per site (settings).
+- Import and export of themes and rules as JSON. Imports are sanitized. Exports never contain keys, history or conversations.
+- Optional passphrase protection for API keys (PBKDF2 + AES-GCM), unlocked once per browser session.
+- Token estimate before generating, reported token usage after, and cost estimates from user-entered prices. A setting for how much page detail is sent.
+- Palette panel contrast ratings for important token pairs.
+- Live preview inside same-site iframes.
+- Localisation: browser.i18n with an English catalog for the manifest, all page markup, the popup and settings.
+- GitHub Actions: CI (type-check, tests, zips) and a manual store release workflow (`wxt submit`, dry run by default).
+
+### Changed
+
+- **Permissions:** no website access at install. Enable PageCraft per site or on all sites from the popup. Provider API hosts are requested on first use. A background script registers the content script for granted sites. Users upgrading from 1.3 may need to enable sites once.
+- Firefox minimum version is now 128 (for `optional_host_permissions`).
+- The contrast scan has a time budget and backs off on heavy pages.
+- The popup's settings button now reads “Settings & themes”, and the settings page has sections for AI, key protection, themes & sites, site access and privacy.
+
+### Decided against
+
+- AI-generated JavaScript via the `userScripts` API: too much risk for too little gain. Themes stay CSS-only.
+
+## [1.3.0] - 2026-11-16
+
+### Added
+
+- Design tokens: the AI designs a palette (12 colors, fonts, size, line height, radius, border width) before writing CSS that uses `var(--pc-*)`. PageCraft validates the tokens and writes the `:root` block.
+- Palette panel to edit tokens without an AI call.
+- Conversation: instructions and AI summaries are saved per style and replayed when refining. Collapsible log with Clear.
+- Review: the AI checks the previewed theme (contrast report, plus optional screenshot) and fixes problems.
+- Optional screenshot input for vision-capable models.
+- Contrast checker (WCAG AA) on the previewed page, with a results chip and list.
+- Themes apply inside iframes (setting, on by default) and optionally inside open shadow roots (setting, off by default).
+- Settings: “Where themes apply” section.
+
+### Changed
+
+- The editor is now CodeMirror 6: completion, search, folding, real undo (a whole generation is one step), color swatches with picker, syntax warnings.
+- The style element is kept alive and last in `<head>` when single-page apps rewrite it.
+- Image parts are supported in all providers.
+
+## [1.2.0] - 2026-11-15
+
+### Added
+
+- Undo for generations and loaded versions, plus a History menu with the last 20 saved versions of each style.
+- Content script injection into tabs that were open before install (new `scripting` permission).
+- Site-access banner in the popup, and provider-host permission requests in settings and the editor.
+- Vitest unit tests (`npm test`) for the sanitizer, providers, page digest, history, prompt and permissions.
+- Firefox `data_collection_permissions` metadata.
+- Icons in 16/32/48/96/128 px.
+
+### Changed
+
+- The CSS sanitizer now uses css-tree. It removes unsafe declarations and rules while keeping formatting and comments, catches escaped `url()`/`@import`, and rejects the stylesheet if the browser still finds external references.
+- Deleting a style asks for confirmation.
+- Package size went from 1.22 MB to 161 KB (the full-size icon is no longer shipped).
+
 ## [1.1.0] - 2026-11-15
 
 ### Added

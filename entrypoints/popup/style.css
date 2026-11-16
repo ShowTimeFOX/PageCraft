@@ -74,3 +74,42 @@ button.secondary {
   border: 1px solid GrayText;
   color: inherit;
 }
+
+.banner {
+  border: 1px solid #c77c1c;
+  border-radius: 6px;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
+.banner p {
+  font-size: 13px;
+}
+
+button.primary {
+  background: #1458a6;
+  border: 1px solid #1458a6;
+  color: #fff;
+  font-weight: 600;
+}
+
+.note {
+  color: GrayText;
+  font-size: 12px;
+  margin-top: -4px;
+}
+
+.check {
+  align-items: center;
+  display: flex;
+  font-weight: 500;
+  gap: 8px;
+  margin: 0;
+}
+
+.check input {
+  margin: 0;
+  min-height: 0;
+  width: auto;
+}
