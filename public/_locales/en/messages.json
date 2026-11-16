@@ -530,6 +530,14 @@
   "popupSaveFailed": {
     "message": "Could not save: {0}"
   },
+  "popupSectionGlobal": {
+    "message": "Everywhere",
+    "description": "Popup card heading for settings that apply to all sites."
+  },
+  "popupSectionSite": {
+    "message": "This site",
+    "description": "Popup card heading for per-site controls."
+  },
   "popupStyleApplied": {
     "message": "Style applied to this site."
   },

@@ -34,7 +34,10 @@ function setStatus(message: string) {
 
 function renderToggle(enabled: boolean) {
   toggleButton.setAttribute("aria-pressed", String(enabled));
-  toggleButton.textContent = enabled ? t("popupOn") : t("popupOff");
+  // The button is a visual switch; the state text lives in its label and tooltip.
+  const label = enabled ? t("popupOn") : t("popupOff");
+  toggleButton.setAttribute("aria-label", label);
+  toggleButton.title = label;
 }
 
 function renderSite(data: ThemeSettings) {
